@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<title>Türkçeleştir — Yapay zekâ denemesi</title>
+<style>
+  :root { --zemin: #fff; --yazi: #1d1d1f; --soluk: #666; --kenar: #ccc; --kutu: #fafafa; --vurgu: #e30a17; }
+  @media (prefers-color-scheme: dark) { :root { --zemin: #202124; --yazi: #e8eaed; --soluk: #9aa0a6; --kenar: #5f6368; --kutu: #292a2d; } }
+  body { font: 15px/1.5 system-ui, sans-serif; background: var(--zemin); color: var(--yazi); max-width: 860px; margin: 24px auto; padding: 0 16px; }
+  h1 { font-size: 22px; margin-bottom: 4px; }
+  .soluk { color: var(--soluk); font-size: 13px; }
+  textarea { width: 100%; box-sizing: border-box; min-height: 140px; font: inherit; padding: 10px; border: 1px solid var(--kenar); border-radius: 8px; background: var(--kutu); color: var(--yazi); }
+  button { font: inherit; padding: 8px 14px; border-radius: 8px; border: 1px solid var(--kenar); background: var(--kutu); color: var(--yazi); cursor: pointer; margin: 8px 8px 8px 0; }
+  button.ana { background: var(--vurgu); color: #fff; border-color: var(--vurgu); }
+  button:disabled { opacity: .5; cursor: default; }
+  #durum { padding: 10px 12px; border-radius: 8px; background: var(--kutu); border: 1px solid var(--kenar); }
+  progress { width: 100%; }
+  h3 { font-size: 15px; margin: 18px 0 4px; }
+  .sonuc { white-space: pre-wrap; padding: 10px; border: 1px solid var(--kenar); border-radius: 8px; background: var(--kutu); min-height: 24px; }
+</style>
+</head>
+<body>
+  <h1>Yapay zekâ ile düzeltme — deneme</h1>
+  <p class="soluk">Chrome'un bilgisayarında çalışan yerleşik modeli (Gemini Nano) kullanır: ücretsiz, metin dışarı gitmez.
+    İlk kullanımda model bir kez indirilir (birkaç GB).</p>
+
+  <div id="durum">Durum kontrol ediliyor…</div>
+  <progress id="ilerleme" value="0" max="1" hidden></progress>
+  <button id="indir" class="ana" hidden>Modeli indir ve hazırla</button>
+
+  <h3>Denenecek metin</h3>
+  <textarea id="girdi">merhaba arkadaslar gecen hafta aracimi servise goturdum ama hala sorun cozulmedi motor isigi yaniyor ve rolantide titreme var ustalar bujileri degistirdik dediler ama bence sorun baska yerde belki enjektorlerdir daha once boyle bir sorun yasayan oldu mu bir de almanyada parca bulmak cok zor turkiyeden getirtmek mantikli mi sizce</textarea>
+  <button id="dene" class="ana">Düzelt</button> <span id="sure" class="soluk"></span>
+
+  <h3>1) Yalnız ücretsiz kurallar (şu anki Alt+Y)</h3>
+  <div id="kurallar" class="sonuc"></div>
+  <h3>2) Kurallar + yapay zekâ</h3>
+  <div id="yz" class="sonuc"></div>
+
+  <script src="lib/deasciifier.js"></script>
+  <script src="lib/turkce.js"></script>
+  <script src="lib/yz.js"></script>
+  <script src="ayarlar.js"></script>
+</body>
+</html>

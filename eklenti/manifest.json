@@ -6,6 +6,7 @@
   "permissions": ["contextMenus", "scripting", "activeTab", "storage"],
   "host_permissions": ["<all_urls>"],
   "background": { "service_worker": "arka.js" },
+  "options_page": "ayarlar.html",
   "action": {
     "default_title": "Türkçeleştir",
     "default_popup": "pencere.html",

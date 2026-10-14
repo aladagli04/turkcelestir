@@ -8,6 +8,8 @@ document.getElementById('kisayol').addEventListener('click', function () {
   chrome.tabs.create({ url: 'chrome://extensions/shortcuts' });
 });
 
+document.getElementById('yz').addEventListener('click', function () { chrome.runtime.openOptionsPage(); });
+
 // Son işlemin sonucu (sorun bildirirken bunu göndermek yeterli).
 chrome.storage.local.get('son', function (v) {
   var s = v.son, el = document.getElementById('son');
