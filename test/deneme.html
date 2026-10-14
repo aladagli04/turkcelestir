@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<title>Türkçeleştir deneme</title>
+<style>
+  body { font: 15px/1.5 system-ui, sans-serif; max-width: 720px; margin: 24px auto; padding: 0 16px; }
+  textarea, input, [contenteditable] { width: 100%; box-sizing: border-box; font: inherit; padding: 8px; border: 1px solid #999; border-radius: 6px; margin-bottom: 18px; }
+  textarea { height: 110px; }
+  [contenteditable] { min-height: 110px; }
+  blockquote { border-left: 3px solid #ccc; margin: 6px 0; padding-left: 8px; color: #666; }
+</style>
+</head>
+<body>
+<h2>Türkçeleştir — deneme sayfası</h2>
+<p>Kutulara yaz, sağ tıkla → Türkçeleştir (ya da Alt+T / Alt+Y).</p>
+
+<label>Forum kutusu (textarea)</label>
+<textarea id="kutu">merhaba arkadaslar,  bugun cok guzel bir gun .yarin istanbula gidiyorum,siz de gelecek misiniz</textarea>
+
+<label>Tek satır (input)</label>
+<input id="satir" value="almanyada yasayan turkler icin bir soru">
+
+<label>Zengin editör (Gmail gibi)</label>
+<div id="editor" contenteditable="true"><div>sayin ilgili,</div><div>gecen hafta <b>siparis</b> ettigim urun hala gelmedi. ne zaman gelecek mi</div><div><br></div><div>saygilarimla</div><blockquote class="gmail_quote">eski mesaj: siparisiniz alindi</blockquote></div>
+
+<script src="../eklenti/lib/deasciifier.js"></script>
+<script src="../eklenti/lib/turkce.js"></script>
+<script src="../eklenti/icerik.js"></script>
+</body>
+</html>

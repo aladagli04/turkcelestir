@@ -1,0 +1,24 @@
+{
+  "manifest_version": 3,
+  "name": "Türkçeleştir",
+  "version": "0.1.0",
+  "description": "Türkçe karakterleri (ç ğ ı ö ş ü) sağ tıkla düzeltir; isterseniz büyük harf ve noktalamayı da.",
+  "permissions": ["contextMenus", "scripting", "activeTab"],
+  "background": { "service_worker": "arka.js" },
+  "action": {
+    "default_title": "Türkçeleştir",
+    "default_popup": "pencere.html",
+    "default_icon": { "16": "ikon/16.png", "32": "ikon/32.png" }
+  },
+  "icons": { "16": "ikon/16.png", "32": "ikon/32.png", "48": "ikon/48.png", "128": "ikon/128.png" },
+  "commands": {
+    "karakter": {
+      "suggested_key": { "default": "Alt+T" },
+      "description": "Sadece Türkçe karakterler"
+    },
+    "tam": {
+      "suggested_key": { "default": "Alt+Y" },
+      "description": "Karakter + büyük harf + noktalama"
+    }
+  }
+}
