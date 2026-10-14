@@ -5,6 +5,7 @@
 // Author:  Mustafa Emre Acer
 // Version: 1.1
 // Date:    2010-12-05
+// License: MIT — see LICENSE-deasciifier.txt (meacer, Deniz Yuret).
 //
 
 function Deasciifier() {
