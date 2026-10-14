@@ -288,6 +288,13 @@
     if (/\d/.test(a + b)) return a === b;
     return uzaklik(a, b) <= (Math.min(a.length, b.length) >= 6 ? 2 : Math.min(a.length, b.length) >= 3 ? 1 : 0);
   }
+  // Dil adları ve küçük harfli (cins) isimler kesme almaz: "Türkçe'leştir" -> "Türkçeleştir".
+  function kesmeDuzelt(k) {
+    var m = /^(\p{L}+)['’](\p{L}+)$/u.exec(k);
+    if (!m) return k;
+    if (/(ça|çe|ca|ce)$/.test(kucult(m[1]))) return m[1] + m[2];
+    return k;
+  }
   function birlestir(girdi, model) {
     var G = parcala(girdi), M = parcala(model), n = G.k.length, m = M.k.length;
     var gs = G.k.map(sade), ms = M.k.map(sade);
@@ -319,11 +326,22 @@
     var araAl = function (mj, gAra) { return (mj != null && !/[\p{L}\p{N}]/u.test(M.a[mj])) ? M.a[mj] : gAra; };
     var cikti = araAl(n && es[0] === 0 ? 0 : null, G.a[0]);
     for (i = 0; i < n; i++) {
-      if (es[i] >= 0) for (var x = es[i]; x <= eb[i]; x++) cikti += (x > es[i] ? M.a[x] : '') + M.k[x];
+      if (es[i] >= 0 && eb[i] > es[i]) cikti += ayir(G.k[i], es[i]);
+      else if (es[i] >= 0) cikti += kesmeDuzelt(M.k[es[i]]);
       else cikti += G.k[i];
       var sonraki = i + 1 < n ? (es[i] >= 0 && es[i + 1] === eb[i] + 1 ? eb[i] + 1 : null)
         : (eb[i] === m - 1 ? m : null);
       cikti += araAl(sonraki, G.a[i + 1]);
+    }
+    // Bitişik kelimeyi ayır: model harf yutmuş olabilir ("yazınıntürkçe" -> "yazını Türkçe"), bu yüzden
+    // girdinin kelimesi modelin ikinci kelimesinin uzunluğuna göre bölünür; o parça aynıysa modelin yazılışı.
+    function ayir(kelime, mj) {
+      var ikinci = M.k[mj + 1], k = kelime.length - ikinci.length;
+      if (k < 1 || sade(kelime) === ms[mj] + ms[mj + 1]) return kesmeDuzelt(M.k[mj]) + M.a[mj + 1] + kesmeDuzelt(ikinci);
+      var sol = kelime.slice(0, k), sag = kelime.slice(k);
+      if (sade(sol) === ms[mj]) sol = M.k[mj];
+      if (sade(sag) === ms[mj + 1]) sag = ikinci;
+      return kesmeDuzelt(sol) + ' ' + kesmeDuzelt(sag);
     }
     // Model son kelimeyi sildiyse de cümle sonu işaretini (? . !) koru: "mantıklı mı sizce?"
     if (n && eb[n - 1] !== m - 1 && /^[.?!…]+\s*$/.test(M.a[m]) && !/[.?!…]\s*$/.test(cikti)) {

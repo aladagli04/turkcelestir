@@ -66,6 +66,9 @@ esit('bitişik ayırma 2', B('dedigim gibiforumlarda yazinintürkce karekterleri
 esit('kesme', B('galiba firefoxta idi', "Galiba Firefox'ta idi."), "Galiba Firefox'ta idi.");
 esit('sayı değişmez', B('saat 14 te', "Saat 15'te"), 'Saat 14 te');
 
+esit('dil adı kesme almaz', B('turkcelestir diye', "Türkçe'leştir diye"), 'Türkçeleştir diye');
+esit('ayırmada yutulan harf', B('yazinintürkce karakter', 'yazını Türkçe karakter'), 'yazinin Türkçe karakter');
+
 console.log('Fark');
 function uygula(a, parcalar) {
   for (var i = parcalar.length - 1; i >= 0; i--) a = a.slice(0, parcalar[i].a0) + parcalar[i].yeni + a.slice(parcalar[i].a1);
