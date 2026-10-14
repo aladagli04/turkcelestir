@@ -13,7 +13,8 @@ chrome.storage.local.get('son', function (v) {
   var s = v.son, el = document.getElementById('son');
   if (!s) return;
   var saat = new Date(s.zaman).toLocaleTimeString('tr-TR');
-  var ozet = s.durum === 'tamam' ? (s.sayi ? s.sayi + ' yer düzeltildi' : 'değişecek bir şey yoktu')
+  var ozet = s.durum === 'tamam' ? (s.sayi ? s.sayi + ' yer düzeltildi' : 'değişecek bir şey yoktu') +
+      (s.atlanan ? ', ' + s.atlanan + ' yer editör izin vermediği için atlandı' : '')
     : s.durum === 'alan-yok' ? 'yazı kutusu bulunamadı' : 'HATA';
   el.textContent = 'Son işlem (' + saat + ', ' + (s.site || '?') + ', ' + (s.alan || '-') + '): ' + ozet +
     (s.durum !== 'tamam' && s.hata ? ' — ' + s.hata : '');
