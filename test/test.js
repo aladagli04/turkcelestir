@@ -45,6 +45,17 @@ esit('adres tam', tam('bak google.com sitesine'), 'Bak google.com sitesine');
 esit('seçim cümle ortası', T.duzelt('Ben de geldim', 7, 13, 'tam'), 'geldim');
 esit('seçim yeni cümle', T.duzelt('Tamam. geldim', 7, 13, 'tam'), 'Geldim');
 
+console.log('Yapay zekâ birleştirme');
+var B = T.birlestir;
+esit('silinen kelime geri gelir', B('Bir de Almanya\'da parça bulmak çok zor Türkiye\'den getirtmek mantıklı mı sizce',
+  'Bir de Almanya\'da parça bulmak çok zor. Türkiye\'den getirtmek mantıklı mı?'),
+  'Bir de Almanya\'da parça bulmak çok zor. Türkiye\'den getirtmek mantıklı mı sizce?');
+esit('eklenen kelime atılır', B('yarin gelirim', 'Yarın kesinlikle gelirim.'), 'Yarın gelirim.');
+esit('değişen kelime girdiden', B('araba aldim', 'Otomobil aldım.'), 'araba aldım.');
+esit('şapka/harf modelden', B('hala gelmedi', 'Hâlâ gelmedi.'), 'Hâlâ gelmedi.');
+esit('aynısı', B('Merhaba arkadaşlar geçen hafta', 'Merhaba arkadaşlar, geçen hafta'), 'Merhaba arkadaşlar, geçen hafta');
+esit('model tırnak/süs', B('tamam geliyorum', '"Tamam, geliyorum."'), '"Tamam, geliyorum."');
+
 console.log('Fark');
 function uygula(a, parcalar) {
   for (var i = parcalar.length - 1; i >= 0; i--) a = a.slice(0, parcalar[i].a0) + parcalar[i].yeni + a.slice(parcalar[i].a1);

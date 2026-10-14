@@ -1,29 +1,35 @@
 // Arka plan: sağ tık menüsü ve klavye kısayolları.
 // Sayfalara sürekli betik eklenmez; yalnız kullanıcı istediğinde o sekmeye enjekte edilir (activeTab).
 
-var BASLIK = { karakter: 'Sadece Türkçe karakterler', tam: 'Karakter + büyük harf + noktalama' };
+importScripts('lib/deasciifier.js', 'lib/turkce.js', 'lib/yz.js');
+
+var BASLIK = { karakter: 'Sadece Türkçe karakterler', tam: 'Karakter + büyük harf + noktalama',
+  yz: 'Yapay zekâ ile tam düzelt (Chrome yerleşik)' };
+var MODLAR = ['karakter', 'tam', 'yz'];
 
 chrome.runtime.onInstalled.addListener(function () {
   chrome.contextMenus.removeAll(function () {
     chrome.contextMenus.create({ id: 'kok', title: 'Türkçeleştir', contexts: ['editable'] });
     chrome.contextMenus.create({ id: 'karakter', parentId: 'kok', title: BASLIK.karakter, contexts: ['editable'] });
     chrome.contextMenus.create({ id: 'tam', parentId: 'kok', title: BASLIK.tam, contexts: ['editable'] });
+    chrome.contextMenus.create({ id: 'yz', parentId: 'kok', title: BASLIK.yz, contexts: ['editable'] });
   });
 });
 
 chrome.contextMenus.onClicked.addListener(function (bilgi, sekme) {
-  if (bilgi.menuItemId === 'karakter' || bilgi.menuItemId === 'tam') {
+  if (MODLAR.indexOf(bilgi.menuItemId) >= 0) {
     calistir(sekme, bilgi.menuItemId, 'menu', { frameIds: [bilgi.frameId || 0] });
   }
 });
 
 chrome.commands.onCommand.addListener(function (komut, sekme) {
-  if (komut === 'karakter' || komut === 'tam') calistir(sekme, komut, 'kisayol', { allFrames: true });
+  if (MODLAR.indexOf(komut) >= 0) calistir(sekme, komut, 'kisayol', { allFrames: true });
 });
 
 async function calistir(sekme, mod, kaynak, cerceve) {
   if (!sekme || sekme.id == null) return;
   var hedef = Object.assign({ tabId: sekme.id }, cerceve);
+  if (mod === 'yz') rozet(sekme.id, '…', true);
   try {
     await chrome.scripting.executeScript({ target: hedef, files: ['lib/deasciifier.js', 'lib/turkce.js', 'icerik.js'] });
     var sonuclar = await chrome.scripting.executeScript({
@@ -54,10 +60,21 @@ function kaydet(sekme, mod, sonuc) {
   chrome.storage.local.set({ son: Object.assign({ zaman: Date.now(), site: adres, mod: mod }, sonuc) });
 }
 
+// İçerik betiği yapay zekâ düzeltmesini buradan ister (model service worker'da çalışır).
+chrome.runtime.onMessage.addListener(function (ileti, gonderen, cevapla) {
+  if (!ileti || ileti.tur !== 'yz') return;
+  TurkceYZ.yzUygula(ileti.metin).then(function (metin) { cevapla({ metin: metin }); }, function (e) {
+    var m = String(e && e.message || e);
+    if (/user activation|NotAllowed/i.test(m)) m = 'Model henüz indirilmemiş: simge → "Yapay zekâ denemesi" sayfasından bir kez indirin.';
+    cevapla({ hata: m });
+  });
+  return true; // cevap eşzamansız
+});
+
 // Simgenin üstünde kısa süre: kaç yer düzeltildi (✓ = zaten düzgün, ! = yapılamadı).
-function rozet(sekmeId, yazi) {
+function rozet(sekmeId, yazi, kalici) {
   if (!yazi) return;
-  chrome.action.setBadgeBackgroundColor({ color: yazi === '!' ? '#b00020' : '#1b7f3b', tabId: sekmeId });
+  chrome.action.setBadgeBackgroundColor({ color: yazi === '!' ? '#b00020' : yazi === '…' ? '#666666' : '#1b7f3b', tabId: sekmeId });
   chrome.action.setBadgeText({ text: yazi, tabId: sekmeId });
-  setTimeout(function () { chrome.action.setBadgeText({ text: '', tabId: sekmeId }); }, 2500);
+  if (!kalici) setTimeout(function () { chrome.action.setBadgeText({ text: '', tabId: sekmeId }); }, 2500);
 }

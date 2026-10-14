@@ -1,6 +1,6 @@
 chrome.commands.getAll(function (komutlar) {
   komutlar.forEach(function (k) {
-    var el = document.getElementById(k.name === 'karakter' ? 'k1' : k.name === 'tam' ? 'k2' : '');
+    var el = document.getElementById(k.name === 'karakter' ? 'k1' : k.name === 'tam' ? 'k2' : k.name === 'yz' ? 'k3' : '');
     if (el) el.textContent = k.shortcut || 'atanmamış';
   });
 });

@@ -26,12 +26,23 @@
     return null;
   }
 
-  function kutuyuDuzelt(el, mod) {
+  // Yeni metni hesapla. 'yz': önce ücretsiz kurallar burada, sonra noktalama arka plandaki modelde.
+  async function hesapla(metin, bas, son, mod) {
+    var on = Turkce.duzelt(metin, bas, son, mod === 'yz' ? 'tam' : mod);
+    if (mod !== 'yz' || !/\p{L}/u.test(on)) return on;
+    var c = await chrome.runtime.sendMessage({ tur: 'yz', metin: on });
+    if (!c || c.hata) throw new Error(c ? c.hata : 'Arka plandan cevap gelmedi');
+    return c.metin;
+  }
+  var DEGISTI = 'Metin, yapay zekâ çalışırken değişti; dokunulmadı. Tekrar deneyin.';
+
+  async function kutuyuDuzelt(el, mod) {
     var deger = el.value, bas = el.selectionStart, son = el.selectionEnd, imlec = son;
     var secimVar = son > bas && !tekKelime(deger.slice(bas, son));
     if (!secimVar) { bas = 0; son = deger.length; imlec = el.selectionStart; }
-    var eski = deger.slice(bas, son), yeni = Turkce.duzelt(deger, bas, son, mod);
+    var eski = deger.slice(bas, son), yeni = await hesapla(deger, bas, son, mod);
     if (yeni === eski) return 0;
+    if (el.value !== deger) throw new Error(DEGISTI);
     el.focus();
     el.setSelectionRange(bas, son);
     if (!document.execCommand('insertText', false, yeni) || el.value.slice(bas, bas + yeni.length) !== yeni) {
@@ -93,8 +104,9 @@
         imlec = metindekiYer(parcalar, r.startContainer, r.startOffset);
       }
     }
-    var eski = metin.slice(bas, son), yeni = Turkce.duzelt(metin, bas, son, mod);
+    var eski = metin.slice(bas, son), yeni = await hesapla(metin, bas, son, mod);
     if (yeni === eski) return { sayi: 0 };
+    if (dugumleriTopla(kok).metin !== metin) throw new Error(DEGISTI);
 
     // Değişiklikleri düğümlere dağıt; aynı düğümdekileri tek değişiklikte birleştir.
     var gruplar = [];
@@ -178,11 +190,11 @@
     var el = odaktakiAlan();
     if (!el) return null;
     try {
-      var s = el.isContentEditable ? await editoruDuzelt(el, mod) : { sayi: kutuyuDuzelt(el, mod) };
+      var s = el.isContentEditable ? await editoruDuzelt(el, mod) : { sayi: await kutuyuDuzelt(el, mod) };
       return { durum: 'tamam', sayi: s.sayi, atlanan: s.atlanan || 0, alan: el.tagName.toLowerCase() };
     } catch (e) {
       console.warn('Türkçeleştir:', e);
-      return { durum: 'hata', hata: String(e && e.stack || e).slice(0, 400), alan: el.tagName.toLowerCase() };
+      return { durum: 'hata', hata: String(e && e.message || e).slice(0, 400), alan: el.tagName.toLowerCase() };
     }
   };
 })();

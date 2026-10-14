@@ -1,5 +1,5 @@
 // Chrome'un yerleşik yapay zekâsı (Gemini Nano, Prompt API) ile noktalama/yazım düzeltme.
-// Yalnız eklenti sayfalarında çalışır (ayarlar sayfası, ileride offscreen belge).
+// Eklenti sayfasında (ayarlar) ve arka plan service worker'ında çalışır.
 (function (kok) {
   if (kok.TurkceYZ) return;
 
@@ -56,27 +56,30 @@
     return oturum;
   }
 
-  // Metni düzeltir. Önce ücretsiz kurallar (karakter + büyük harf), sonra model.
-  async function duzelt(metin, ilerleme) {
-    var on = kok.Turkce ? kok.Turkce.duzelt(metin, 0, metin.length, 'tam') : metin;
+  // Kuralları geçmiş metne yalnız modelin noktalamasını uygular. Satır satır (satır sonları korunur);
+  // kelimeler her zaman girdiden gelir (Turkce.birlestir), model anlamı değiştiremez.
+  async function yzUygula(metin, ilerleme) {
     var o = await oturumAc(ilerleme);
-    var k = await o.clone(); // her metin temiz bağlamla (örnekler korunur)
-    try {
-      var cevap = (await k.prompt(on)).trim();
-      return { kurallar: on, yz: temizle(cevap, on) };
-    } finally { k.destroy(); }
-  }
-
-  // Modelin olası süslerini ayıkla; metni çok değiştirdiyse güvenme.
-  function temizle(cevap, girdi) {
-    cevap = cevap.replace(/^```[a-z]*\n?|\n?```$/g, '').replace(/^["“”']|["“”']$/g, '').trim();
-    var kelime = function (s) { return s.toLocaleLowerCase('tr').replace(/[^\p{L}\p{N}\s]/gu, ' ').split(/\s+/).filter(Boolean); };
-    var a = kelime(girdi), b = kelime(cevap);
-    if (Math.abs(a.length - b.length) > Math.max(2, a.length * 0.15)) {
-      throw new Error('Model metni fazla değiştirdi (kelime sayısı ' + a.length + ' → ' + b.length + '), kullanılmadı');
+    var satirlar = metin.split('\n');
+    for (var i = 0; i < satirlar.length; i++) {
+      var satir = satirlar[i];
+      if (!/\p{L}/u.test(satir)) continue;
+      var k = await o.clone(); // her satır temiz bağlamla (örnekler korunur)
+      try {
+        var cevap = (await k.prompt(satir.trim())).trim()
+          .replace(/^```[a-z]*\n?|\n?```$/g, '').replace(/\s*\n+\s*/g, ' ');
+        var bas = satir.match(/^\s*/)[0], son = satir.match(/\s*$/)[0];
+        satirlar[i] = bas + kok.Turkce.birlestir(satir.trim(), cevap) + son;
+      } finally { k.destroy(); }
     }
-    return cevap;
+    return satirlar.join('\n');
   }
 
-  kok.TurkceYZ = { durum: durum, oturumAc: oturumAc, duzelt: duzelt };
+  // Deneme sayfası için: önce ücretsiz kurallar (karakter + büyük harf), sonra model.
+  async function duzelt(metin, ilerleme) {
+    var on = kok.Turkce.duzelt(metin, 0, metin.length, 'tam');
+    return { kurallar: on, yz: await yzUygula(on, ilerleme) };
+  }
+
+  kok.TurkceYZ = { durum: durum, oturumAc: oturumAc, duzelt: duzelt, yzUygula: yzUygula };
 })(globalThis);

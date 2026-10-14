@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Türkçeleştir",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Türkçe karakterleri (ç ğ ı ö ş ü) sağ tıkla düzeltir; isterseniz büyük harf ve noktalamayı da.",
   "permissions": ["contextMenus", "scripting", "activeTab", "storage"],
   "host_permissions": ["<all_urls>"],
@@ -21,6 +21,10 @@
     "tam": {
       "suggested_key": { "default": "Alt+Y" },
       "description": "Karakter + büyük harf + noktalama"
+    },
+    "yz": {
+      "suggested_key": { "default": "Alt+U" },
+      "description": "Yapay zekâ ile tam düzelt (Chrome yerleşik)"
     }
   }
 }

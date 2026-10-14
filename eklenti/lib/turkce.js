@@ -256,7 +256,50 @@
     return parcalar.map(function (h) { return { a0: h.a0 + p, a1: h.a1 + p, yeni: B.slice(h.b0, h.b1) }; });
   }
 
-  var Turkce = { karakterler: karakterler, kurallar: kurallar, duzelt: duzelt, fark: fark };
+  // ---------- Yapay zekâ çıktısını güvenle birleştir ----------
+  // Kelimeler HER ZAMAN girdiden gelir (model kelime silemez/ekleyemez/değiştiremez); modelden yalnız
+  // aynı kelimenin yazılışı (büyük harf, şapka, Türkçe harf) ve kelimeler arası noktalama alınır.
+  var KELIME = /[\p{L}\p{N}]+(?:['’][\p{L}]+)?/gu;
+  var SADE = { 'ç': 'c', 'ğ': 'g', 'ı': 'i', 'ö': 'o', 'ş': 's', 'ü': 'u', 'â': 'a', 'î': 'i', 'û': 'u' };
+  function sade(k) { return k.toLocaleLowerCase('tr').replace(/[çğıöşüâîû]/g, function (c) { return SADE[c]; }).replace(/’/g, '\''); }
+  function parcala(s) {
+    var k = [], a = [], son = 0, m;
+    KELIME.lastIndex = 0;
+    while ((m = KELIME.exec(s))) { a.push(s.slice(son, m.index)); k.push(m[0]); son = m.index + m[0].length; }
+    a.push(s.slice(son));
+    return { k: k, a: a }; // a[i] = k[i]'den önceki ara, a[k.length] = sondaki ara
+  }
+  function birlestir(girdi, model) {
+    var G = parcala(girdi), M = parcala(model), n = G.k.length, m = M.k.length;
+    var gs = G.k.map(sade), ms = M.k.map(sade);
+    // En uzun ortak alt dizi (kelime düzeyinde)
+    var L = [];
+    for (var i = 0; i <= n; i++) { L.push(new Int32Array(m + 1)); }
+    for (i = n - 1; i >= 0; i--) for (var j = m - 1; j >= 0; j--)
+      L[i][j] = gs[i] === ms[j] ? L[i + 1][j + 1] + 1 : Math.max(L[i + 1][j], L[i][j + 1]);
+    var es = new Array(n).fill(-1);
+    i = 0; j = 0;
+    while (i < n && j < m) {
+      if (gs[i] === ms[j]) { es[i] = j; i++; j++; }
+      else if (L[i + 1][j] >= L[i][j + 1]) i++; else j++;
+    }
+    // Ara (noktalama) modelden yalnız iki komşu kelime modelde de komşuysa ve ara harf/rakam içermiyorsa.
+    var araAl = function (gi, mj, gAra) { return (mj != null && !/[\p{L}\p{N}]/u.test(M.a[mj])) ? M.a[mj] : gAra; };
+    var cikti = araAl(0, n && es[0] === 0 ? 0 : null, G.a[0]);
+    for (i = 0; i < n; i++) {
+      cikti += es[i] >= 0 ? M.k[es[i]] : G.k[i];
+      var sonraki = i + 1 < n ? (es[i] >= 0 && es[i + 1] === es[i] + 1 ? es[i] + 1 : null)
+        : (es[i] === m - 1 ? m : null);
+      cikti += araAl(i + 1, sonraki, G.a[i + 1]);
+    }
+    // Model son kelimeyi sildiyse de cümle sonu işaretini (? . !) koru: "mantıklı mı sizce?"
+    if (n && es[n - 1] !== m - 1 && /^[.?!…]+\s*$/.test(M.a[m]) && !/[.?!…]\s*$/.test(cikti)) {
+      cikti = cikti.replace(/\s*$/, function (bosluk) { return M.a[m].trim() + bosluk; });
+    }
+    return n ? cikti : girdi;
+  }
+
+  var Turkce = { karakterler: karakterler, kurallar: kurallar, duzelt: duzelt, fark: fark, birlestir: birlestir };
   kok.Turkce = Turkce;
   if (typeof module !== 'undefined' && module.exports) module.exports = Turkce;
 })(typeof globalThis !== 'undefined' ? globalThis : this);

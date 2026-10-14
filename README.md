@@ -5,6 +5,10 @@ Türkçe karakter olmadan (ya da Almanca klavyeyle) yazılmış metni sağ tıkl
 - **Sadece Türkçe karakterler** (`Alt+T`): c/g/i/o/s/u → ç/ğ/ı/ö/ş/ü. Zaten yazılmış ü/ö/ş'ye dokunmaz.
 - **Karakter + büyük harf + noktalama** (`Alt+Y`): ayrıca cümle başı büyük harf, boşluk/noktalama düzeni,
   sonda soru eki varsa `?`, ülke/şehir/dil adları (Almanya'da, Türkçe, İstanbul'a).
+- **Yapay zekâ ile tam düzelt** (`Alt+U`): Chrome'un bilgisayarda çalışan yerleşik modeli (Gemini Nano, Prompt API)
+  noktalamayı düzeltir; ücretsiz, metin dışarı gitmez. Kelimeler her zaman kullanıcının metninden gelir
+  (`Turkce.birlestir`): model kelime silemez/ekleyemez, yalnız noktalama ve aynı kelimenin yazılışı alınır.
+  Model bir kez indirilmeli: simge → "Yapay zekâ denemesi" (ayarlar.html). Güçlü bilgisayar gerekir.
 - Seçim varsa yalnız seçili kısım, yoksa kutunun tamamı. `Ctrl+Z` ile geri alınır.
 - Çevrimdışı çalışır; metin hiçbir yere gönderilmez. İzinler: `contextMenus`, `scripting`, `activeTab`, `storage`,
   tüm siteler (GMX gibi başka alan adından çerçeve içindeki editörlere girebilmek için)
@@ -28,7 +32,8 @@ Kodu değiştirince `chrome://extensions` sayfasında eklentinin yenile (↻) d�
 - `tools/ikon.py` — ikonları üretir.
 
 ## Bilinen sınırlar
-- Virgül yerini ve noktasız uzun metnin cümle sınırlarını kurallar bilemez (bunun için ileride yapay zekâ seçeneği).
+- Virgül yerini ve noktasız uzun metnin cümle sınırlarını kurallar bilemez (bunun için yapay zekâ seçeneği).
+- Yerleşik model Türkçeyi resmi olarak desteklemiyor (2026-10 itibarıyla); yine de testte iyi sonuç verdi.
 - Soru işareti yalnız soru eki cümlenin son kelimesiyse eklenir ("mantıklı mı sizce" → eklenmez).
 - Zengin editörlerde (Gmail) geri alma birkaç `Ctrl+Z` gerektirebilir.
 - Tek kelimelik seçim, seçim sayılmaz (Chrome sağ tıkta kırmızı çizili kelimeyi kendisi seçiyor); kutunun tamamı düzelir.
