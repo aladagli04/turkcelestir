@@ -1,0 +1,43 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Windows 10/11'de hazır gelen .NET Framework 4.8: kullanıcı hiçbir şey kurmaz. Tek exe: DLL'ler gömülü. -->
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net48</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <RootNamespace>Turkcelestir</RootNamespace>
+    <AssemblyName>Turkcelestir</AssemblyName>
+    <ApplicationIcon>ikon.ico</ApplicationIcon>
+    <Version>0.3.0</Version>
+    <Product>Türkçeleştir</Product>
+    <Description>Türkçe karakter ve noktalama düzeltme (Windows kısayol aracı)</Description>
+    <Copyright>MIT — aladagli04; deasciifier: Deniz Yüret, meacer</Copyright>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="../Cekirdek.cs" />
+    <EmbeddedResource Include="../../eklenti/lib/deasciifier.js" LogicalName="deasciifier.js" />
+    <EmbeddedResource Include="../../eklenti/lib/turkce.js" LogicalName="turkce.js" />
+    <EmbeddedResource Include="ikon.ico" LogicalName="ikon.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Jint" Version="4.17.0" />
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <!-- Bağımlı DLL'leri exe'nin içine göm (Program.cs'deki AssemblyResolve yükler). -->
+  <Target Name="DllleriGom" AfterTargets="ResolveAssemblyReferences">
+    <ItemGroup>
+      <EmbeddedResource Include="@(ReferenceCopyLocalPaths)" Condition="'%(ReferenceCopyLocalPaths.Extension)' == '.dll'"
+                        LogicalName="dll.%(ReferenceCopyLocalPaths.Filename)%(ReferenceCopyLocalPaths.Extension)" />
+    </ItemGroup>
+  </Target>
+
+</Project>
