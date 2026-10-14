@@ -10,7 +10,7 @@ var ACIKLAMA = {
 async function guncelle() {
   var d = await TurkceYZ.durum();
   $('durum').textContent = (ACIKLAMA[d.durum] || d.durum) +
-    (d.dil === 'en' ? ' (Not: Türkçe resmi olarak desteklenmiyor; yine de deneniyor.)' : d.dil === 'tr' ? ' Türkçe destekleniyor.' : '');
+    (d.dil ? ' (Not: Chrome bu modelde Türkçeyi resmi olarak desteklemiyor; yine de iyi çalışıyor.)' : '');
   $('indir').hidden = !(d.durum === 'downloadable' || d.durum === 'downloading');
   $('dene').disabled = !d.dil;
   return d;

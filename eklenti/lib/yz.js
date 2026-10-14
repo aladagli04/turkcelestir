@@ -19,18 +19,16 @@
       'Ben de geldim ama sen yoktun. Neredeydin acaba? Haber verseydin keşke.']
   ];
 
-  var DIL = { expectedInputs: [{ type: 'text', languages: ['tr'] }], expectedOutputs: [{ type: 'text', languages: ['tr'] }] };
-  var DIL_EN = { expectedInputs: [{ type: 'text', languages: ['en'] }], expectedOutputs: [{ type: 'text', languages: ['en'] }] };
+  // Desteklenen diller (Chrome 154): de, en, es, fr, ja. Türkçe yok; "tr" sormak Chrome'un hata
+  // listesine kayıt düşüyor. Talimat İngilizce olduğu için "en" bildirip Türkçe metin veriyoruz.
+  var DIL = { expectedInputs: [{ type: 'text', languages: ['en'] }], expectedOutputs: [{ type: 'text', languages: ['en'] }] };
 
   function var_() { return typeof LanguageModel !== 'undefined'; }
 
-  // Türkçe resmi olarak desteklenmiyorsa İngilizce bildirip yine Türkçe metin veriyoruz.
   async function durum() {
     if (!var_()) return { durum: 'yok', dil: null };
-    var tr = await LanguageModel.availability(DIL).catch(function () { return 'unavailable'; });
-    if (tr !== 'unavailable') return { durum: tr, dil: 'tr' };
-    var en = await LanguageModel.availability(DIL_EN).catch(function () { return 'unavailable'; });
-    return { durum: en, dil: en === 'unavailable' ? null : 'en' };
+    var d = await LanguageModel.availability(DIL).catch(function () { return 'unavailable'; });
+    return { durum: d, dil: d === 'unavailable' ? null : 'en' };
   }
 
   var oturum = null;
@@ -46,7 +44,7 @@
       monitor: function (m) {
         m.addEventListener('downloadprogress', function (e) { if (ilerleme) ilerleme(e.loaded); });
       }
-    }, d.dil === 'tr' ? DIL : DIL_EN);
+    }, DIL);
     // Düşük sıcaklık: yaratıcılık değil, sadık düzeltme istiyoruz.
     try {
       oturum = await LanguageModel.create(Object.assign({ temperature: 0.1, topK: 1 }, secenek));
