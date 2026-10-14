@@ -23,6 +23,7 @@ esit('cümle başı', tam('merhaba. bugun nasilsin? iyiyim!'), 'Merhaba. Bugün 
 esit('i -> İ', tam('istanbul guzel'), 'İstanbul güzel');
 esit('boşluklar', tam('Selam  ,  nasilsin   abi .'), 'Selam, nasılsın abi.');
 esit('nokta sonrası boşluk', tam('Geldim.Sonra gittim,ama donecegim'), 'Geldim. Sonra gittim, ama döneceğim');
+esit('bölünmez boşluk', tam('yapamazmiyiz  sadece'), 'Yapamazmıyız sadece');
 esit('ters boşluk', tam('guzel bir gun .yarin gel ,olur mu'), 'Güzel bir gün. Yarın gel, olur mu?');
 esit('soru eki sonda', tam('yarin geliyor musun'), 'Yarın geliyor musun?');
 esit('soru eki nokta', tam('Geliyor musun. Ben geliyorum.'), 'Geliyor musun? Ben geliyorum.');
@@ -55,6 +56,15 @@ esit('değişen kelime girdiden', B('araba aldim', 'Otomobil aldım.'), 'araba a
 esit('şapka/harf modelden', B('hala gelmedi', 'Hâlâ gelmedi.'), 'Hâlâ gelmedi.');
 esit('aynısı', B('Merhaba arkadaşlar geçen hafta', 'Merhaba arkadaşlar, geçen hafta'), 'Merhaba arkadaşlar, geçen hafta');
 esit('model tırnak/süs', B('tamam geliyorum', '"Tamam, geliyorum."'), '"Tamam, geliyorum."');
+
+esit('yazım düzeltmesi', B('bior eklenti, faydalli olacaktir', 'Bir eklenti, faydalı olacaktır.'), 'Bir eklenti, faydalı olacaktır.');
+esit('başka kelime reddedilir', B('dun geldi', 'Dün gitti.'), 'Dün geldi.');
+esit('bitişik ayırma', B('sorum böyle bir eklentiyi yapamazmiyiz  sadece', 'Sorum böyle bir eklentiyi yapamaz mıyız? Sadece'),
+  'Sorum böyle bir eklentiyi yapamaz mıyız? Sadece');
+esit('bitişik ayırma 2', B('dedigim gibiforumlarda yazinintürkce karekterlerinin', 'dediğim gibi forumlarda yazının Türkçe karakterlerinin'),
+  'dediğim gibi forumlarda yazının Türkçe karakterlerinin');
+esit('kesme', B('galiba firefoxta idi', "Galiba Firefox'ta idi."), "Galiba Firefox'ta idi.");
+esit('sayı değişmez', B('saat 14 te', "Saat 15'te"), 'Saat 14 te');
 
 console.log('Fark');
 function uygula(a, parcalar) {

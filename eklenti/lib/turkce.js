@@ -159,7 +159,8 @@
     var L = '\\p{L}';
 
     s = s.split('\n').map(function (satir) {
-      satir = satir.replace(/[ \t]+$/, '');                                   // satır sonu boşluk
+      satir = satir.replace(/[ \t ]+$/, '');                             // satır sonu boşluk
+      satir = satir.replace(/(\S)[ \t ]* [ \t ]*(?=\S)/g, '$1 '); // editörün &nbsp;'si
       satir = satir.replace(/(\S)[ \t]{2,}(?=\S)/g, '$1 ');                   // çift boşluk
       satir = satir.replace(/(\S)[ \t]+([,;:!?.…]+)(?=\s|$)/g, '$1$2');       // "kelime ," -> "kelime,"
       satir = satir.replace(new RegExp('(?<=' + L + ')[ \\t]+([,;!?.])(?=' + L + '{2,})', 'gu'), '$1'); // "gün .yarın"
@@ -257,11 +258,12 @@
   }
 
   // ---------- Yapay zekâ çıktısını güvenle birleştir ----------
-  // Kelimeler HER ZAMAN girdiden gelir (model kelime silemez/ekleyemez/değiştiremez); modelden yalnız
-  // aynı kelimenin yazılışı (büyük harf, şapka, Türkçe harf) ve kelimeler arası noktalama alınır.
+  // Kelimeler girdiden gelir; modelden yalnız şunlar alınır: aynı kelimenin yazılışı (büyük harf, şapka,
+  // Türkçe harf, kesme), küçük yazım düzeltmesi (1-2 harf), bitişik yazılmışı ayırma (yapamazmıyız ->
+  // yapamaz mıyız) ve kelimeler arası noktalama. Model kelime ekleyemez, silemez, başka kelime koyamaz.
   var KELIME = /[\p{L}\p{N}]+(?:['’][\p{L}]+)?/gu;
   var SADE = { 'ç': 'c', 'ğ': 'g', 'ı': 'i', 'ö': 'o', 'ş': 's', 'ü': 'u', 'â': 'a', 'î': 'i', 'û': 'u' };
-  function sade(k) { return k.toLocaleLowerCase('tr').replace(/[çğıöşüâîû]/g, function (c) { return SADE[c]; }).replace(/’/g, '\''); }
+  function sade(k) { return k.toLocaleLowerCase('tr').replace(/[çğıöşüâîû]/g, function (c) { return SADE[c]; }).replace(/['’]/g, ''); }
   function parcala(s) {
     var k = [], a = [], son = 0, m;
     KELIME.lastIndex = 0;
@@ -269,31 +271,62 @@
     a.push(s.slice(son));
     return { k: k, a: a }; // a[i] = k[i]'den önceki ara, a[k.length] = sondaki ara
   }
+  function uzaklik(x, y) { // Levenshtein
+    var o = [], i, j;
+    for (j = 0; j <= y.length; j++) o.push(j);
+    for (i = 1; i <= x.length; i++) {
+      var sol = i, kose = i - 1;
+      for (j = 1; j <= y.length; j++) {
+        var u = Math.min(o[j] + 1, sol + 1, kose + (x[i - 1] === y[j - 1] ? 0 : 1));
+        kose = o[j]; o[j] = sol = u;
+      }
+    }
+    return o[y.length];
+  }
+  // Yazım düzeltmesi mi, başka kelime mi? Kısa kelimede 1, uzunda 2 harf farka izin.
+  function yakin(a, b) {
+    if (/\d/.test(a + b)) return a === b;
+    return uzaklik(a, b) <= (Math.min(a.length, b.length) >= 6 ? 2 : Math.min(a.length, b.length) >= 3 ? 1 : 0);
+  }
   function birlestir(girdi, model) {
     var G = parcala(girdi), M = parcala(model), n = G.k.length, m = M.k.length;
     var gs = G.k.map(sade), ms = M.k.map(sade);
-    // En uzun ortak alt dizi (kelime düzeyinde)
+    // 1) En uzun ortak alt dizi (aynı kelimeler) -> çapalar
     var L = [];
     for (var i = 0; i <= n; i++) { L.push(new Int32Array(m + 1)); }
     for (i = n - 1; i >= 0; i--) for (var j = m - 1; j >= 0; j--)
       L[i][j] = gs[i] === ms[j] ? L[i + 1][j + 1] + 1 : Math.max(L[i + 1][j], L[i][j + 1]);
-    var es = new Array(n).fill(-1);
+    var es = new Array(n).fill(-1), eb = new Array(n).fill(-1); // girdi kelimesi -> model [es..eb]
     i = 0; j = 0;
     while (i < n && j < m) {
-      if (gs[i] === ms[j]) { es[i] = j; i++; j++; }
+      if (gs[i] === ms[j]) { es[i] = eb[i] = j; i++; j++; }
       else if (L[i + 1][j] >= L[i][j + 1]) i++; else j++;
     }
-    // Ara (noktalama) modelden yalnız iki komşu kelime modelde de komşuysa ve ara harf/rakam içermiyorsa.
-    var araAl = function (gi, mj, gAra) { return (mj != null && !/[\p{L}\p{N}]/u.test(M.a[mj])) ? M.a[mj] : gAra; };
-    var cikti = araAl(0, n && es[0] === 0 ? 0 : null, G.a[0]);
+    // 2) Çapalar arasındaki boşluklarda yazım düzeltmesi ve kelime ayırma
+    var gi = 0, mj = 0;
+    while (gi < n) {
+      if (es[gi] >= 0) { mj = eb[gi] + 1; gi++; continue; }
+      var gSon = gi; while (gSon < n && es[gSon] < 0) gSon++;          // girdi boşluğu [gi, gSon)
+      var mSon = gSon < n ? es[gSon] : m;                              // model boşluğu [mj, mSon)
+      for (; gi < gSon; gi++) {
+        if (mj < mSon && yakin(gs[gi], ms[mj])) { es[gi] = eb[gi] = mj++; continue; }
+        if (mj + 1 < mSon && !/[\p{L}\p{N}]/u.test(M.a[mj + 1]) && ms[mj].length >= 2 && ms[mj + 1].length >= 2 &&
+            yakin(gs[gi], ms[mj] + ms[mj + 1])) { es[gi] = mj; eb[gi] = mj + 1; mj += 2; continue; }
+      }
+      mj = mSon;
+    }
+    // 3) Yaz: kelime modelden (eşleştiyse) ya da girdiden; ara modelden yalnız komşuluk korunuyorsa.
+    var araAl = function (mj, gAra) { return (mj != null && !/[\p{L}\p{N}]/u.test(M.a[mj])) ? M.a[mj] : gAra; };
+    var cikti = araAl(n && es[0] === 0 ? 0 : null, G.a[0]);
     for (i = 0; i < n; i++) {
-      cikti += es[i] >= 0 ? M.k[es[i]] : G.k[i];
-      var sonraki = i + 1 < n ? (es[i] >= 0 && es[i + 1] === es[i] + 1 ? es[i] + 1 : null)
-        : (es[i] === m - 1 ? m : null);
-      cikti += araAl(i + 1, sonraki, G.a[i + 1]);
+      if (es[i] >= 0) for (var x = es[i]; x <= eb[i]; x++) cikti += (x > es[i] ? M.a[x] : '') + M.k[x];
+      else cikti += G.k[i];
+      var sonraki = i + 1 < n ? (es[i] >= 0 && es[i + 1] === eb[i] + 1 ? eb[i] + 1 : null)
+        : (eb[i] === m - 1 ? m : null);
+      cikti += araAl(sonraki, G.a[i + 1]);
     }
     // Model son kelimeyi sildiyse de cümle sonu işaretini (? . !) koru: "mantıklı mı sizce?"
-    if (n && es[n - 1] !== m - 1 && /^[.?!…]+\s*$/.test(M.a[m]) && !/[.?!…]\s*$/.test(cikti)) {
+    if (n && eb[n - 1] !== m - 1 && /^[.?!…]+\s*$/.test(M.a[m]) && !/[.?!…]\s*$/.test(cikti)) {
       cikti = cikti.replace(/\s*$/, function (bosluk) { return M.a[m].trim() + bosluk; });
     }
     return n ? cikti : girdi;
