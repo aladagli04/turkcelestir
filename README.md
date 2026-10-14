@@ -6,8 +6,9 @@ Türkçe karakter olmadan (ya da Almanca klavyeyle) yazılmış metni sağ tıkl
 - **Karakter + büyük harf + noktalama** (`Alt+Y`): ayrıca cümle başı büyük harf, boşluk/noktalama düzeni,
   sonda soru eki varsa `?`, ülke/şehir/dil adları (Almanya'da, Türkçe, İstanbul'a).
 - Seçim varsa yalnız seçili kısım, yoksa kutunun tamamı. `Ctrl+Z` ile geri alınır.
-- Çevrimdışı çalışır; metin hiçbir yere gönderilmez. İzinler: `contextMenus`, `scripting`, `activeTab`
-  (sayfaya yalnız menüye/kısayola basınca girer).
+- Çevrimdışı çalışır; metin hiçbir yere gönderilmez. İzinler: `contextMenus`, `scripting`, `activeTab`, `storage`,
+  tüm siteler (GMX gibi başka alan adından çerçeve içindeki editörlere girebilmek için)
+  — sayfaya yine yalnız menüye/kısayola basınca girer.
 - Adresler, e-postalar, @kullanıcı ve #etiketler korunur. Gmail'de alıntılanan eski mesaj ve imza düzeltilmez.
 
 ## Kurulum (geliştirici modu)
@@ -30,4 +31,6 @@ Kodu değiştirince `chrome://extensions` sayfasında eklentinin yenile (↻) d�
 - Virgül yerini ve noktasız uzun metnin cümle sınırlarını kurallar bilemez (bunun için ileride yapay zekâ seçeneği).
 - Soru işareti yalnız soru eki cümlenin son kelimesiyse eklenir ("mantıklı mı sizce" → eklenmez).
 - Zengin editörlerde (Gmail) geri alma birkaç `Ctrl+Z` gerektirebilir.
+- Tek kelimelik seçim, seçim sayılmaz (Chrome sağ tıkta kırmızı çizili kelimeyi kendisi seçiyor); kutunun tamamı düzelir.
+- Sorun olursa simgeye tıkla: "Son işlem" satırı ne olduğunu söyler.
 - Mağazaya koymadan önce deasciifier.js lisansı kaynağından teyit edilmeli.

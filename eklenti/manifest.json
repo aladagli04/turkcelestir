@@ -3,7 +3,8 @@
   "name": "Türkçeleştir",
   "version": "0.1.0",
   "description": "Türkçe karakterleri (ç ğ ı ö ş ü) sağ tıkla düzeltir; isterseniz büyük harf ve noktalamayı da.",
-  "permissions": ["contextMenus", "scripting", "activeTab"],
+  "permissions": ["contextMenus", "scripting", "activeTab", "storage"],
+  "host_permissions": ["<all_urls>"],
   "background": { "service_worker": "arka.js" },
   "action": {
     "default_title": "Türkçeleştir",

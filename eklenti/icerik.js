@@ -9,6 +9,10 @@
   var ATLA = 'blockquote, .gmail_quote, .gmail_signature, [class*="signature"], script, style, [contenteditable="false"]';
   var BLOK = /^(DIV|P|LI|UL|OL|H[1-6]|TR|TD|PRE|SECTION|ARTICLE|BLOCKQUOTE|TABLE)$/;
 
+  // Chrome sağ tıkta yazım hatalı (kırmızı çizili) kelimeyi kendiliğinden seçer; ASCII Türkçe
+  // kelimelerin hepsi öyle. Tek kelimelik seçimi kullanıcı seçimi saymıyoruz: kutunun tamamı düzelir.
+  function tekKelime(s) { return !/\s/.test(s.trim()); }
+
   function odaktakiAlan() {
     var el = document.activeElement;
     while (el && el.shadowRoot && el.shadowRoot.activeElement) el = el.shadowRoot.activeElement;
@@ -24,8 +28,8 @@
 
   function kutuyuDuzelt(el, mod) {
     var deger = el.value, bas = el.selectionStart, son = el.selectionEnd, imlec = son;
-    var secimVar = son > bas;
-    if (!secimVar) { bas = 0; son = deger.length; }
+    var secimVar = son > bas && !tekKelime(deger.slice(bas, son));
+    if (!secimVar) { bas = 0; son = deger.length; imlec = el.selectionStart; }
     var eski = deger.slice(bas, son), yeni = Turkce.duzelt(deger, bas, son, mod);
     if (yeni === eski) return 0;
     el.focus();
@@ -75,7 +79,7 @@
           var ps = p.dugum === r.endContainer ? r.endOffset : p.dugum.data.length;
           if (pb < ps) { b = Math.min(b, p.bas + pb); s = Math.max(s, p.bas + ps); }
         });
-        if (s > b) { bas = b; son = s; secimVar = true; }
+        if (s > b && !tekKelime(metin.slice(b, s))) { bas = b; son = s; secimVar = true; }
       } else if (r.collapsed && r.startContainer.nodeType === 3) {
         imlec = { dugum: r.startContainer, ofset: r.startOffset };
       }
@@ -134,10 +138,11 @@
     var el = odaktakiAlan();
     if (!el) return null;
     try {
-      return el.isContentEditable ? editoruDuzelt(el, mod) : kutuyuDuzelt(el, mod);
+      var sayi = el.isContentEditable ? editoruDuzelt(el, mod) : kutuyuDuzelt(el, mod);
+      return { durum: 'tamam', sayi: sayi, alan: el.tagName.toLowerCase() };
     } catch (e) {
       console.warn('Türkçeleştir:', e);
-      return -1;
+      return { durum: 'hata', hata: String(e && e.stack || e).slice(0, 400), alan: el.tagName.toLowerCase() };
     }
   };
 })();

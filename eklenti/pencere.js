@@ -7,3 +7,14 @@ chrome.commands.getAll(function (komutlar) {
 document.getElementById('kisayol').addEventListener('click', function () {
   chrome.tabs.create({ url: 'chrome://extensions/shortcuts' });
 });
+
+// Son işlemin sonucu (sorun bildirirken bunu göndermek yeterli).
+chrome.storage.local.get('son', function (v) {
+  var s = v.son, el = document.getElementById('son');
+  if (!s) return;
+  var saat = new Date(s.zaman).toLocaleTimeString('tr-TR');
+  var ozet = s.durum === 'tamam' ? (s.sayi ? s.sayi + ' yer düzeltildi' : 'değişecek bir şey yoktu')
+    : s.durum === 'alan-yok' ? 'yazı kutusu bulunamadı' : 'HATA';
+  el.textContent = 'Son işlem (' + saat + ', ' + (s.site || '?') + ', ' + (s.alan || '-') + '): ' + ozet +
+    (s.durum !== 'tamam' && s.hata ? ' — ' + s.hata : '');
+});
