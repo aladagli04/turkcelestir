@@ -9,12 +9,12 @@ const CIKTI = 'D:/Projects/turkcelestir/magaza';
 const SAYFA = (metin, baslik, alt) => `<!doctype html><html lang="tr"><meta charset="utf-8"><body style="margin:0;width:1280px;height:800px;font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135deg,#e30a17,#8f0510);color:#fff;display:flex;align-items:center;justify-content:center;gap:56px">
 <div style="width:440px">
   <div style="font-size:20px;opacity:.85;margin-bottom:10px">Türkçeleştir</div>
-  <div style="font-size:44px;font-weight:700;line-height:1.15">${baslik}</div>
+  <div style="font-size:38px;font-weight:700;line-height:1.2">${baslik}</div>
   <div style="font-size:22px;margin-top:18px;opacity:.95;line-height:1.4">${alt}</div>
 </div>
 <div style="width:520px;background:#fff;color:#1d1d1f;border-radius:14px;padding:22px;box-shadow:0 18px 40px rgba(0,0,0,.35)">
   <div style="font-size:15px;color:#666;margin-bottom:8px">Forum · Yanıt yaz</div>
-  <textarea id="kutu" style="width:100%;box-sizing:border-box;height:260px;font:19px/1.5 'Segoe UI',system-ui,sans-serif;padding:14px;border:1px solid #bbb;border-radius:10px">${metin}</textarea>
+  <textarea id="kutu" spellcheck="false" style="width:100%;box-sizing:border-box;height:260px;font:19px/1.5 'Segoe UI',system-ui,sans-serif;padding:14px;border:1px solid #bbb;border-radius:10px">${metin}</textarea>
   <div style="margin-top:14px;display:flex;justify-content:flex-end"><span style="background:#e30a17;color:#fff;padding:10px 22px;border-radius:8px;font-size:16px">Gönder</span></div>
 </div></body></html>`;
 
@@ -22,8 +22,8 @@ const ILK = 'merhaba arkadaslar, bugun cok guzel bir gun .yarin istanbula gidiyo
 const SONRA = 'Merhaba arkadaşlar, bugün çok güzel bir gün. Yarın İstanbul\'a gidiyorum, siz de gelecek misiniz?';
 
 const ekranlar = [
-  { ad: '1-once.png', baslik: 'Almanca klavyeyle yazdın,<br>Türkçe harfler yok.', alt: 'Sorun değil. Yazı kutusuna sağ tıkla.', metin: ILK, duzelt: false },
-  { ad: '2-sonra.png', baslik: 'Sağ tık → Türkçeleştir.<br>Bitti.', alt: 'Türkçe harfler, büyük harf ve noktalama düzelir. Kelimeler değişmez.', metin: ILK, duzelt: true },
+  { ad: '1-once.png', baslik: 'Türkçe karakterleri olmayan bir klavyeyle mi yazdın?', alt: 'Sorun değil. Yazı kutusuna sağ tıkla.', metin: ILK, duzelt: false },
+  { ad: '2-sonra.png', baslik: 'Harfler, büyük harf ve noktalama tek tıkla düzelir.', alt: 'Yapay zekâ seçeneği (deneysel) yazım hatalarını ve virgülleri de düzeltir. Kelimelerin hep aynı kalır.', metin: ILK, duzelt: true },
 ];
 
 http.createServer((q, r) => { r.setHeader('content-type', 'text/html; charset=utf-8'); r.end(q.url.includes('sonra') ? '' : ''); }).listen(8831);
