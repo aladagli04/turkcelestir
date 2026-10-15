@@ -39,14 +39,16 @@ async function calistir(sekme, mod, kaynak, cerceve) {
     });
     var sonuc = null;
     sonuclar.forEach(function (s) { if (s.result && s.result.durum) sonuc = s.result; });
-    if (!sonuc) sonuc = { durum: 'alan-yok', hata: 'Odakta yazı kutusu bulunamadı (' + kaynak + ')' };
+    if (!sonuc) sonuc = { durum: 'alan-yok', hata: 'Odakta yazı kutusu bulunamadı. Kutu başka bir alan adından gelen çerçevedeyse (ör. GMX) simgeye tıklayıp "Çerçeveli editörler için izin ver"i aç.' };
     kaydet(sekme, mod, sonuc);
     rozet(sekme.id, sonuc.durum === 'tamam' ? (sonuc.sayi ? String(sonuc.sayi) : '✓') : '!');
     return sonuc;
   } catch (e) {
     // chrome:// ve Web Mağazası sayfalarına eklenti giremez.
     console.warn('Türkçeleştir:', e);
-    var s = { durum: 'hata', hata: String(e && e.message || e) };
+    var m = String(e && e.message || e);
+    if (/Cannot access|permission|frame/i.test(m)) m += ' — Çerçeveli editörlerde (ör. GMX) simgeye tıklayıp "Çerçeveli editörler için izin ver"i aç.';
+    var s = { durum: 'hata', hata: m };
     kaydet(sekme, mod, s);
     rozet(sekme.id, '!');
     return s;

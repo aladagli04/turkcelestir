@@ -81,8 +81,10 @@ Bu seçenek Chrome'un **bilgisayarın içinde çalışan** yerleşik yapay zekâ
 - İstenen izinler ve nedenleri:
   - `contextMenus`: sağ tık menüsü.
   - `scripting`, `activeTab`: tıkladığın yazı kutusunu düzeltebilmek için.
-  - **Tüm siteler**: bazı e-posta servisleri (ör. GMX) yazı kutusunu başka bir alan adından gelen bir çerçevenin
-    içinde gösteriyor; oraya girebilmek için gerekli. Yine yalnız sen istediğinde kullanılır.
+  - **Tüm siteler (isteğe bağlı, varsayılan olarak kapalı):** bazı e-posta servisleri (ör. GMX) yazı kutusunu başka
+    bir alan adından gelen bir çerçevenin içinde gösteriyor; `activeTab` oraya yetmez. İstersen simgeye tıklayıp
+    **"Çerçeveli editörler için izin ver"** diyerek bu izni sen açarsın, istediğin zaman geri alırsın. Açıksa bile
+    yalnız sen menüye ya da kısayola bastığında çalışır.
   - `storage`: son işlemin sonucunu (simge penceresindeki "Son işlem" satırı) saklamak için; metnin kendisi saklanmaz.
 
 Kaynak kodun tamamı bu depoda; istediğin gibi inceleyebilirsin.
@@ -93,6 +95,7 @@ Kaynak kodun tamamı bu depoda; istediğin gibi inceleyebilirsin.
   bunun için yapay zekâ seçeneği var.
 - Soru işareti (Alt+Y) yalnız soru eki cümlenin son kelimesiyse eklenir ("mantıklı mı sizce" → eklenmez).
 - Zengin editörlerde (Gmail, Reddit) geri almak birkaç `Ctrl+Z` gerektirebilir.
+- GMX gibi çerçeveli editörlerde önce yukarıdaki isteğe bağlı izni vermek gerekir.
 - Chrome'un kendi sayfalarında (`chrome://`) ve Web Mağazası'nda eklentiler çalışamaz.
 - Tarayıcı dışındaki programlarda (Word, Outlook masaüstü vb.) çalışmaz.
 

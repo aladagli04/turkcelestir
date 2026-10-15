@@ -21,3 +21,21 @@ chrome.storage.local.get('son', function (v) {
   el.textContent = 'Son işlem (' + saat + ', ' + (s.site || '?') + ', ' + (s.alan || '-') + '): ' + ozet +
     (s.durum !== 'tamam' && s.hata ? ' — ' + s.hata : '');
 });
+
+// Çerçeveli editörler (GMX gibi başka alan adından gelen iframe) için isteğe bağlı geniş site izni.
+var TUM = { origins: ['<all_urls>'] };
+function izinGuncelle() {
+  chrome.permissions.contains(TUM, function (var_) {
+    document.getElementById('izin').textContent = var_ ? 'Tüm sitelerde izni geri al' : 'Çerçeveli editörler için izin ver';
+    document.getElementById('izinnot').textContent = var_
+      ? 'Tüm sitelerde çalışma izni açık (GMX gibi çerçeveli editörler dahil). Yine yalnız sen tetiklediğinde çalışır.'
+      : 'Gmail, forumlar, Reddit gibi çoğu yerde izin gerekmez. Yazı kutusu başka bir alan adından gelen çerçevedeyse (ör. GMX) çalışmaz; o zaman bu izni ver.';
+  });
+}
+document.getElementById('izin').addEventListener('click', function () {
+  chrome.permissions.contains(TUM, function (var_) {
+    if (var_) chrome.permissions.remove(TUM, izinGuncelle);
+    else chrome.permissions.request(TUM, izinGuncelle);
+  });
+});
+izinGuncelle();
