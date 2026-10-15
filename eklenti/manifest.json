@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Türkçeleştir",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Türkçe karakterleri (ç ğ ı ö ş ü) sağ tıkla düzeltir; isterseniz büyük harf ve noktalamayı da.",
   "homepage_url": "https://github.com/aladagli04/turkcelestir",
   "permissions": ["contextMenus", "scripting", "activeTab", "storage"],
