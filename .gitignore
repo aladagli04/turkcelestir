@@ -6,3 +6,7 @@ __pycache__/
 dist/
 bin/
 obj/
+DEVIR.md
+test/chrome/profil/
+test/chrome/node_modules/
+test/chrome/package*.json
