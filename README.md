@@ -8,6 +8,13 @@ düzelten ücretsiz bir Chrome eklentisi.
 
 Forumlarda, Gmail'de, Reddit'te, YouTube yorumlarında, e-postada… yazı yazılan her kutuda çalışır.
 
+## Görüntüler
+
+| | |
+|---|---|
+| ![Önce](magaza/1-once.png) | ![Sonra](magaza/2-sonra.png) |
+| ![Sağ tık menüsü](magaza/3-sag-tik.png) | ![Yapay zekâ seçeneği](magaza/4-yapay-zeka.png) |
+
 ## Ne yapar?
 
 Yazı kutusunda sağ tıkla → **Türkçeleştir** → üç seçenek:
