@@ -34,8 +34,9 @@ Yazı kutusunda sağ tıkla → **Türkçeleştir** → üç seçenek:
 
 ## Kurulum
 
-Eklenti Chrome Web Mağazası'nda **yok**; GitHub'dan elle kurulur (Chrome, Edge, Brave gibi Chromium tabanlı
-tarayıcılarda çalışır):
+Eklenti şu an **Chrome Web Mağazası'nda inceleme aşamasında**. Onaylanana kadar GitHub'dan elle kurulur
+(Chrome, Edge, Brave gibi Chromium tabanlı tarayıcılarda çalışır). Mağazada yayınlanınca buraya tek tıkla kurulum
+bağlantısı eklenecek:
 
 1. Sağdaki **Releases** bölümünden son sürümün `turkcelestir-x.y.z.zip` dosyasını indir.
 2. Zip'i kalıcı bir klasöre aç (ör. `Belgeler\turkcelestir`). **Bu klasörü silme**; eklenti oradan çalışır.
