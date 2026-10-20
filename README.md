@@ -22,7 +22,7 @@ Yazı kutusunda sağ tıkla → **Türkçeleştir** → üç seçenek:
 | Seçenek | Kısayol | Ne yapar |
 |---|---|---|
 | **Sadece Türkçe karakterler** | `Alt+T` | c/g/i/o/s/u → ç/ğ/ı/ö/ş/ü. Zaten yazılmış ü, ö, ş'ye dokunmaz. |
-| **Karakter + büyük harf + noktalama** | `Alt+Y` | Ayrıca cümle başı büyük harf, boşluk/noktalama düzeni, ülke/şehir/dil adları (Almanya'da, İstanbul'a, Türkçe), bitişik soru eki (varmı → var mı?), bağlaç de/da/ki (bende geliyorum → ben de geliyorum, diyorki → diyor ki), sık bitişik/ayrı yazımlar (herşey → her şey, hiç bir → hiçbir), sık yazım hataları (herkez, yanlız, malesef), sayıya kesme (5te → 5'te), soru sözcüklü cümleye `?` (ne zaman geliyorsun?), sık kişi adları (mehmetin → Mehmet'in, zeynebe → Zeynep'e), marka yazılışı (whatsappta → WhatsApp'ta, iPhone'umu), bayram ve özel günler (Ramazan Bayramı, Anneler Günü). |
+| **Karakter + büyük harf + noktalama** | `Alt+Y` | Ayrıca cümle başı büyük harf, boşluk/noktalama düzeni, ülke/şehir/dil adları (Almanya'da, İstanbul'a, Türkçe). **0.3.0'dan itibaren** ayrıca: bitişik soru eki (varmı → var mı?), bağlaç de/da/ki (bende geliyorum → ben de geliyorum, diyorki → diyor ki), sık bitişik/ayrı yazımlar (herşey → her şey, hiç bir → hiçbir), sık yazım hataları (herkez, yanlız, malesef), sayıya kesme (5te → 5'te), soru sözcüklü cümleye `?` (ne zaman geliyorsun?), sık kişi adları (mehmetin → Mehmet'in, zeynebe → Zeynep'e), marka yazılışı (whatsappta → WhatsApp'ta, iPhone'umu), bayram ve özel günler (Ramazan Bayramı, Anneler Günü). |
 | **Yapay zekâ ile tam düzelt** | `Alt+U` | Ayrıca virgül, cümle bölme ve küçük yazım hataları (bkz. aşağıda). |
 
 - Metin **seçmezsen kutunun tamamı**, seçersen yalnız seçtiğin kısım düzelir.
@@ -34,9 +34,13 @@ Yazı kutusunda sağ tıkla → **Türkçeleştir** → üç seçenek:
 
 ## Kurulum
 
-Eklenti şu an **Chrome Web Mağazası'nda inceleme aşamasında**. Onaylanana kadar GitHub'dan elle kurulur
-(Chrome, Edge, Brave gibi Chromium tabanlı tarayıcılarda çalışır). Mağazada yayınlanınca buraya tek tıkla kurulum
-bağlantısı eklenecek:
+**[Chrome Web Mağazası'ndan kur](https://chromewebstore.google.com/detail/gjckfmnhlilibgcpdohbioagfkibkkpn)**: tek tık, güncellemeler kendiliğinden gelir. Chrome, Edge, Brave gibi
+Chromium tabanlı tarayıcılarda çalışır.
+
+### Elle kurulum (alternatif)
+
+Mağazayı kullanmak istemiyorsan ya da henüz mağazaya çıkmamış en yeni sürümü denemek istiyorsan. Mağaza sürümüyle
+aynı anda kurma; menü ve kısayollar çakışır.
 
 1. Sağdaki **Releases** bölümünden son sürümün `turkcelestir-x.y.z.zip` dosyasını indir.
 2. Zip'i kalıcı bir klasöre aç (ör. `Belgeler\turkcelestir`). **Bu klasörü silme**; eklenti oradan çalışır.
@@ -50,9 +54,7 @@ kurulan her eklenti için gösterilir. **"Vazgeç / İptal"** diyerek eklentiyi 
 
 Kısayolları değiştirmek için: `chrome://extensions/shortcuts`.
 
-### Güncelleme
-
-Mağaza dışı kurulduğu için **kendiliğinden güncellenmez**:
+Elle kurulan sürüm **kendiliğinden güncellenmez**:
 
 1. Releases'ten yeni zip'i indir, aynı klasöre açıp eski dosyaların üzerine yaz.
 2. `chrome://extensions` sayfasında Türkçeleştir'in **↻ (yenile)** düğmesine bas.
@@ -141,5 +143,5 @@ dağıtabilirsin.
 (e.g. on a German/US keyboard): right-click any text box → *Türkçeleştir*. It restores ç ğ ı ö ş ü (Deniz Yüret's
 deasciifier), optionally fixes capitalization and punctuation with rules, and, experimentally, with Chrome's
 on-device AI (Gemini Nano), which runs locally, is free, and can never change your words (only punctuation, casing,
-small typos and word splits are accepted). No data leaves your computer. Install via *Load unpacked* from the
-Releases zip. MIT licensed.
+small typos and word splits are accepted). No data leaves your computer. Install from the
+[Chrome Web Store](https://chromewebstore.google.com/detail/gjckfmnhlilibgcpdohbioagfkibkkpn) (or *Load unpacked* from the Releases zip). MIT licensed.
