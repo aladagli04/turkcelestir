@@ -55,6 +55,8 @@
   var HARF = /\p{L}/u;
   function buyut(h) { return h.toLocaleUpperCase('tr'); }
   function kucult(s) { return s.toLocaleLowerCase('tr'); }
+  var SADE = { 'ç': 'c', 'ğ': 'g', 'ı': 'i', 'ö': 'o', 'ş': 's', 'ü': 'u', 'â': 'a', 'î': 'i', 'û': 'u' };
+  function sade(k) { return k.toLocaleLowerCase('tr').replace(/[çğıöşüâîû]/g, function (c) { return SADE[c]; }).replace(/['’]/g, ''); }
 
   // Nokta sonrası yeni cümle sayılmayan kısaltmalar (küçük harf, noktasız).
   var KISALTMA = new Set(('vb vs vd örn bkz sn dr prof doç av müh yrd no nr st str tel cad sok mah apt ' +
@@ -152,6 +154,172 @@
     return cumleBitiyor(t, t.length - 1);
   }
 
+  // ---------- Kelime düzeltmeleri (tam mod) ----------
+  // Anahtarlar sade (Türkçe harfsiz, küçük) yazılır; böylece deasciifier'ın tahmini ne olursa olsun eşleşir.
+  // '+' ile bitenler ek alabilir (herkeze -> herkese, herşeyi -> her şeyi).
+  var TABLO = {};
+  ('herkez+=herkes yalnis+=yanlış yanliz+=yalnız malesef=maalesef orjinal+=orijinal deyil+=değil ' +
+    'sofor+=şoför antreman+=antrenman laboratuar+=laboratuvar supriz+=sürpriz egzos+=egzoz tras+=tıraş ' +
+    'esortman+=eşofman assagi+=aşağı yukarda=yukarıda hersey+=her_şey birsey+=bir_şey hicbirsey+=hiçbir_şey ' +
+    'herzaman=her_zaman hicbirzaman=hiçbir_zaman birsuru=bir_sürü suan+=şu_an pekcok=pek_çok birtek=bir_tek ' +
+    'hosgeldin+=hoş_geldin hosbulduk=hoş_bulduk gecmisolsun=geçmiş_olsun birdaha=bir_daha yada=ya_da ' +
+    'tabiki=tabii_ki iyiki=iyi_ki oyleki=öyle_ki boyleki=böyle_ki hickimse=hiç_kimse herhangibir=herhangi_bir ' +
+    'nerde+=nerede').split(' ').forEach(function (s) {
+    var p = s.split('='), ek = p[0].slice(-1) === '+';
+    TABLO[ek ? p[0].slice(0, -1) : p[0]] = { yeni: p[1].replace(/_/g, ' '), ek: ek };
+  });
+  // Ayrı yazılmış ama bitişik olması gereken iki kelime.
+  var IKILI = { 'hic bir': 'hiçbir', 'bir kac': 'birkaç', 'tabi ki': 'tabii ki', 'her kes': 'herkes',
+    'bir cok': 'birçok', 'her hangi': 'herhangi', 'bir az': 'biraz', 'hic biri': 'hiçbiri' };
+
+  // Soru eki (sade): mi, mu, misin, muyuz...
+  var SORU_SADE = [];
+  SORU.forEach(function (s) { var x = sade(s); if (SORU_SADE.indexOf(x) < 0) SORU_SADE.push(x); });
+  SORU_SADE.sort(function (a, b) { return b.length - a.length; });
+  // Bitişik "mi" önündeki kelime kesin yüklemse ayrılır (geliyor, gelecek, yapamaz, gördün, var, değil...).
+  var YUKLEM = /(yor|acak|ecek|m[iu]s|(?:abil|ebil)ir|maz|mez|[dt][iu](?:m|n|k|n[iu]z))$/;
+  var YUKLEM_KELIME = new Set('var yok degil olur olmaz lazim gerek tamam mumkun dogru boyle oyle'.split(' '));
+  var MELI = /(mali|meli)$/;
+  // Yalnız cümle sonundaysa ayrılır (geldimi, olurmu): ortada "kendimi, kartımı" gibi isim olabilir.
+  var YUKLEM_ZAYIF = /([dt][iu]|[aeiu]r)$/;
+  var ZAYIF_DEGIL = new Set('kendi simdi kedi vadi hindi yedi adi tadi kadi ordu yir'.split(' '));
+  // Bitişik "ki" önündeki kelime fiilse ayrılır (diyorki, dedimki); sanki/belki/halbuki/şimdiki değil.
+  var KI_KOK = /(yor|[dt][iu]|m[iu]s|acak|ecek)(um|im|sun|sin|uz|iz|sunuz|siniz|lar|ler|m|n|k)?$/;
+  var KI_DEGIL = new Set(['simdi']);
+  // Zamir + bağlaç de/da bitişik: arkasındaki ya da yan cümlenin sonundaki fiilin kişisi zamire uyuyorsa
+  // ayrılır (bende geliyorum, bende yarın gidiyorum).
+  // "Kitap bende kaldı", "Sende kalsın", "Bizde böyle bir adet yok" ayrılmaz.
+  var ZAMIR_DE = {
+    bende: /(m[iu]y[iu]m|yorum|(acag|eceg)[iu]m|[dt][iu]m|m[iu]s[iu]m|[aeiu]r[iu]m|y[iu]m|[ae]l[iu]m)$/,
+    sende: /(m[iu]s[iu]n|yorsun|acaksin|eceksin|[aeiu]rs[iu]n|[dt][iu]n|m[iu]ss[iu]n|malisin|melisin)$/,
+    oda: /(yor|yorlar|acak|ecek|acaklar|ecekler|bilir|s[iu]n)$/,
+    bizde: /(m[iu]y[iu]z|yoruz|(acag|eceg)[iu]z|[dt][iu]k|[aeiu]r[iu]z|[ae]l[iu]m|m[iu]s[iu]z|bilir[iu]z)$/,
+    sizde: /(m[iu]s[iu]n[iu]z|yorsunuz|acaksiniz|eceksiniz|[aeiu]rs[iu]n[iu]z|[dt][iu]n[iu]z|malisiniz|melisiniz)$/,
+    onlarda: /(yorlar|acaklar|ecekler|[dt][iu]l[ae]r|s[iu]nl[ae]r)$/
+  };
+  // "sende gel": 2. tekil emir; yalnız cümle sonunda ve bilinen fiillerle.
+  var EMIR = new Set('gel git yap bak gor soyle ye ic otur dur ver oku yaz bekle sus kos calis uyu dinle'.split(' '));
+
+  function ilkBuyukse(orijinal, yeni) {
+    var c = orijinal.charAt(0);
+    return c !== kucult(c) ? buyut(yeni.charAt(0)) + yeni.slice(1) : yeni;
+  }
+  // Soru ekini öndeki kelimenin son ünlüsüne göre yaz: gelecek misin, var mı, gördün mü.
+  function soruEki(govde, sadeEk) {
+    var unluler = kucult(govde).match(/[aıeioöuü]/g);
+    var ek = sadeEk.replace(/[iu]/g, UYUM[unluler[unluler.length - 1]]);
+    return /ym.ş?s$/.test(ek) ? ek.slice(0, -1) + 'ş' : ek; // mıymış
+  }
+
+  // Tek kelime: tablo, bitişik ki, bitişik soru eki. sonda = cümlenin son kelimesi.
+  function kelimeDuzelt(k, sonda) {
+    var sk = sade(k), t = TABLO[sk];
+    if (t) return ilkBuyukse(k, t.yeni);
+    for (var anahtar in TABLO) {
+      t = TABLO[anahtar];
+      if (t.ek && sk.length > anahtar.length && sk.indexOf(anahtar) === 0) {
+        return ilkBuyukse(k, t.yeni) + k.slice(anahtar.length);
+      }
+    }
+    if (sk.length > 4 && sk.slice(-2) === 'ki') {
+      var kok = sk.slice(0, -2);
+      if (KI_KOK.test(kok) && !KI_DEGIL.has(kok)) return k.slice(0, -2) + ' ki';
+    }
+    for (var i = 0; i < SORU_SADE.length; i++) {
+      var ek = SORU_SADE[i];
+      if (sk.length <= ek.length + 1 || sk.slice(-ek.length) !== ek) continue;
+      var govde = sk.slice(0, -ek.length);
+      if (!/[aeiou]/.test(govde)) continue;
+      var ayir = ek.length > 2 ? govde.length >= 3
+        : YUKLEM.test(govde) || YUKLEM_KELIME.has(govde) || (MELI.test(govde) && govde.length >= 6) ||
+          (sonda && govde.length >= 4 && YUKLEM_ZAYIF.test(govde) && !ZAYIF_DEGIL.has(govde));
+      if (ayir) { var g = k.slice(0, govde.length); return g + ' ' + soruEki(g, ek); }
+      break;
+    }
+    return null;
+  }
+
+  var CUMLE_SONU = /[.!?…,;]/;
+  function kelimeler(satir) {
+    var t = [], m, re = /\p{L}+/gu;
+    while ((m = re.exec(satir))) t.push({ k: m[0], b: m.index, s: m.index + m[0].length });
+    var araSonra = function (i) { return i + 1 < t.length ? satir.slice(t[i].s, t[i + 1].b) : satir.slice(t[i].s); };
+    var degis = [];
+    for (var i = 0; i < t.length; i++) {
+      if (/['’]$/.test(satir.slice(0, t[i].b))) continue;              // kesmeden sonraki ek
+      var ara = araSonra(i);
+      if (/^['’]/.test(ara)) continue;                                  // İstanbul'a: özel isim
+      var sk = sade(t[i].k), yeni = null;
+      if (i + 1 < t.length && /^[ \t]+$/.test(ara)) {
+        var sonraki = sade(t[i + 1].k), ikili = IKILI[sk + ' ' + sonraki];
+        if (ikili) { degis.push([t[i].b, t[i + 1].s, ilkBuyukse(t[i].k, ikili)]); i++; continue; }
+        var zamir = ZAMIR_DE[sk];
+        var sonrakiSonda = i + 2 === t.length || CUMLE_SONU.test(araSonra(i + 1));
+        var j = i + 1;
+        while (j + 1 < t.length && !CUMLE_SONU.test(araSonra(j))) j++;  // yan cümlenin son kelimesi
+        if (zamir && (zamir.test(sonraki) || zamir.test(sade(t[j].k)) ||
+            (sk === 'sende' && sonrakiSonda && EMIR.has(sonraki)))) {
+          yeni = t[i].k.slice(0, -2) + ' ' + t[i].k.slice(-2);
+        }
+      }
+      if (!yeni) yeni = kelimeDuzelt(t[i].k, i + 1 === t.length || CUMLE_SONU.test(ara));
+      if (yeni && yeni !== t[i].k) degis.push([t[i].b, t[i].s, yeni]);
+    }
+    for (i = degis.length - 1; i >= 0; i--) satir = satir.slice(0, degis[i][0]) + degis[i][2] + satir.slice(degis[i][1]);
+    return satir;
+  }
+
+  // Sayıya bitişik ek kesmeyle ayrılır: 5te -> 5'te, 2024te -> 2024'te, 15inde -> 15'inde (km, kg değil).
+  var SAYI_EKI = /^(?:y?[aeiu]|[dt][ae](?:n|ki)?|n?[iu]n|[iu]nc[iu]\p{L}*|[iu]?nd[ae]n?|l[ae]r\p{L}*|l[iu]k\p{L}*|l[iu]|s[iu]|y[iu]n?|y[ae]|[iu]ne)$/u;
+  function sayiKesmesi(satir) {
+    return satir.replace(/(?<![\p{L}\d])(\d+)(\p{Ll}+)(?![\p{L}\d])/gu, function (tam, sayi, ek) {
+      return SAYI_EKI.test(sade(ek)) ? sayi + '\'' + ek : tam;
+    });
+  }
+
+  // Soru sözcüğü olan cümleye soru işareti: "ne zaman geliyorsun" -> "...?"; "nasıl olduğunu bilmiyorum" değil.
+  var SORU_SOZ = /^(ne|neden|niye|nicin|neyi|neye|neyle|neler|nedir|nesi|nasil\p{L}*|kim|kime|kimi|kimin|kimden|kimle|kiminle|hangi\p{L}*|kac|kacta|kaci|kacinci|nere(?!deyse)\p{L}*)$/u;
+  var YAN_CUMLE = /([dt][iu]g[iu]|acag[iu]|eceg[iu])\p{L}*$|[aeiu]rs[ae](n|n[iu]z|k)?$|^(bilmiyorum|bilmem|bilmiyoruz|bilmiyor|merak|olursa|anlamadim)$/u;
+  var UNLEM = new Set('guzel hos iyi kotu buyuk tatli sacma ayip yazik guzelmis'.split(' '));
+  function soruCumlesi(metin) {
+    var k = (metin.match(/\p{L}+/gu) || []).map(sade);
+    var soru = false, ne = 0;
+    if ((k[0] === 'kim' && k[1] === 'bilir') || (k[0] === 'her' && k[1] === 'ne') ||
+      (k[0] === 'kimi' && k[1] === 'zaman')) return false;
+    for (var i = 0; i < k.length; i++) {
+      if (YAN_CUMLE.test(k[i])) return false;
+      if (k[i] === 'ne') {
+        ne++;
+        if (UNLEM.has(k[i + 1]) || (k[i + 1] === 'kadar' && UNLEM.has(k[i + 2]))) return false;
+      }
+      if (SORU_SOZ.test(k[i]) || (i > 0 && k[i].length > 2 && SORU_SADE.indexOf(k[i]) >= 0)) soru = true;
+    }
+    return soru && ne < 2;
+  }
+  function soruIsareti(satir) {
+    var parcalar = [], bas = 0, i;
+    for (i = 0; i < satir.length; i++) {
+      var c = satir.charAt(i);
+      if (c === '…' || ((c === '.' || c === '!' || c === '?') && cumleBitiyor(satir, i))) {
+        var son = i;
+        while (i + 1 < satir.length && /[.!?…]/.test(satir.charAt(i + 1))) i++;
+        parcalar.push([bas, son, satir.slice(son, i + 1)]);
+        bas = i + 1;
+      }
+    }
+    if (bas < satir.length) parcalar.push([bas, satir.length, '']);
+    for (var p = parcalar.length - 1; p >= 0; p--) {
+      var a = parcalar[p][0], b = parcalar[p][1], isaret = parcalar[p][2];
+      var duz = satir.slice(a, b).replace(/\s+$/, '');
+      if ((isaret !== '.' && isaret !== '') || !/\p{L}$/u.test(duz) || !soruCumlesi(duz)) continue;
+      // Selamlamadan sonra virgül: "merhaba nasılsın" -> "merhaba, nasılsın?"
+      var sel = /^(\s*(?:merhaba|selam))([ \t]+)(\p{L}+)/iu.exec(duz);
+      if (sel && SORU_SOZ.test(sade(sel[3]))) duz = sel[1] + ',' + duz.slice(sel[1].length);
+      satir = satir.slice(0, a) + duz + '?' + satir.slice(b + isaret.length);
+    }
+    return satir;
+  }
+
   function kurallar(metin, onceki) {
     if (!metin) return metin;
     var mk = maskele(metin);
@@ -167,6 +335,7 @@
       satir = satir.replace(new RegExp('(?<=' + L + '|\\))([,;!?:])(?=' + L + ')', 'gu'), '$1 ');
       satir = satir.replace(new RegExp('(?<=' + L + '{2,}|\\))\\.(?=' + L + '{2,})', 'gu'), '. ');
       satir = satir.replace(new RegExp('(\\.\\.\\.|…)(?=' + L + ')', 'gu'), '$1 ');
+      satir = kelimeler(satir);
       // Soru eki son kelimeyse: "geliyor musun" -> "geliyor musun?"
       satir = satir.replace(new RegExp('(?<=[ \\t])(' + L + '+)(\\.?)(?=$|[ \\t]+' + L + ')', 'gu'),
         function (tam, kelime, nokta, konum, hepsi) {
@@ -175,6 +344,8 @@
           if (sonra === '' || nokta) return kelime + '?';
           return tam;
         });
+      satir = sayiKesmesi(satir);
+      satir = soruIsareti(satir);
       return satir;
     }).join('\n');
 
@@ -262,8 +433,6 @@
   // Türkçe harf, kesme), küçük yazım düzeltmesi (1-2 harf), bitişik yazılmışı ayırma (yapamazmıyız ->
   // yapamaz mıyız) ve kelimeler arası noktalama. Model kelime ekleyemez, silemez, başka kelime koyamaz.
   var KELIME = /[\p{L}\p{N}]+(?:['’][\p{L}]+)?/gu;
-  var SADE = { 'ç': 'c', 'ğ': 'g', 'ı': 'i', 'ö': 'o', 'ş': 's', 'ü': 'u', 'â': 'a', 'î': 'i', 'û': 'u' };
-  function sade(k) { return k.toLocaleLowerCase('tr').replace(/[çğıöşüâîû]/g, function (c) { return SADE[c]; }).replace(/['’]/g, ''); }
   function parcala(s) {
     var k = [], a = [], son = 0, m;
     KELIME.lastIndex = 0;
