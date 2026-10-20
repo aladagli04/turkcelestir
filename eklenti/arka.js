@@ -1,7 +1,18 @@
 // Arka plan: sağ tık menüsü ve klavye kısayolları.
 // Sayfalara sürekli betik eklenmez; yalnız kullanıcı istediğinde o sekmeye enjekte edilir (activeTab).
 
-importScripts('lib/deasciifier.js', 'lib/turkce.js', 'lib/yz.js');
+importScripts('lib/deasciifier.js', 'lib/turkce.js', 'lib/yz.js', 'lib/sozluk.js');
+
+// Kelime sözlüğü (2,8 MB) ilk istekte yüklenir; service worker uyuyunca bellekten çıkar.
+var sozlukSozu = null;
+function sozluk() {
+  if (!sozlukSozu) {
+    sozlukSozu = fetch(chrome.runtime.getURL('lib/sozluk.txt')).then(function (c) { return c.text(); })
+      .then(TurkceSozluk.yukle);
+    sozlukSozu.catch(function () { sozlukSozu = null; });
+  }
+  return sozlukSozu;
+}
 
 var BASLIK = { karakter: 'Sadece Türkçe karakterler', tam: 'Karakter + büyük harf + noktalama',
   yz: 'Yapay zekâ ile tam düzelt (Chrome yerleşik)' };
@@ -64,6 +75,11 @@ function kaydet(sekme, mod, sonuc) {
 
 // İçerik betiği yapay zekâ düzeltmesini buradan ister (model service worker'da çalışır).
 chrome.runtime.onMessage.addListener(function (ileti, gonderen, cevapla) {
+  if (ileti && ileti.tur === 'sozluk') {
+    sozluk().then(function (h) { cevapla({ metin: TurkceSozluk.duzelt(ileti.metin, h) }); },
+      function (e) { cevapla({ hata: String(e && e.message || e) }); });
+    return true;
+  }
   if (!ileti || ileti.tur !== 'yz') return;
   TurkceYZ.yzUygula(ileti.metin).then(function (metin) { cevapla({ metin: metin }); }, function (e) {
     var m = String(e && e.message || e);

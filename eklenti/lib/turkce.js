@@ -216,7 +216,7 @@
     'sofor+=şoför antreman+=antrenman laboratuar+=laboratuvar supriz+=sürpriz egzos+=egzoz tras+=tıraş ' +
     'esortman+=eşofman assagi+=aşağı yukarda=yukarıda hersey+=her_şey birsey+=bir_şey hicbirsey+=hiçbir_şey ' +
     'herzaman=her_zaman hicbirzaman=hiçbir_zaman birsuru=bir_sürü suan+=şu_an pekcok=pek_çok birtek=bir_tek ' +
-    'hosgeldin+=hoş_geldin hosbulduk=hoş_bulduk gecmisolsun=geçmiş_olsun birdaha=bir_daha yada=ya_da ' +
+    'hosgeldin+=hoş_geldin hosbulduk=hoş_bulduk gecmisolsun=geçmiş_olsun birdaha=bir_daha birgun=bir_gün yada=ya_da ' +
     'tabiki=tabii_ki iyiki=iyi_ki oyleki=öyle_ki boyleki=böyle_ki hickimse=hiç_kimse herhangibir=herhangi_bir ' +
     'nerde+=nerede').split(' ').forEach(function (s) {
     var p = s.split('='), ek = p[0].slice(-1) === '+';

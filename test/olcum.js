@@ -2,7 +2,9 @@
 // Kalite ölçümü: gerçekçi hatalı cümleler, tam mod (Alt+Y) çıktısı beklenenle birebir aynı mı?
 // test.js'ten farkı: burada hepsinin geçmesi beklenmez; amaç hangi hata türünü kaçırdığımızı görmek.
 // "kontrol" kategorisi: zaten doğru metin — bozulmamalı.
-var T = require('../eklenti/lib/turkce.js');
+var T = require('../eklenti/lib/turkce.js'), S = require('../eklenti/lib/sozluk.js');
+// Eklentideki Alt+Y gibi: kurallar, ardından sözlük.
+var harita = S.yukle(require('fs').readFileSync(require('path').join(__dirname, '../eklenti/lib/sozluk.txt'), 'utf8'));
 var ayrinti = process.argv.indexOf('-v') >= 0;
 
 var VAKALAR = [
@@ -81,6 +83,16 @@ var VAKALAR = [
   ['yazım', 'yanlız degilsin', 'Yalnız değilsin'],
   ['yazım', 'kirbac', 'Kırbaç'],
   ['yazım', 'yapcam yarin', 'Yapacağım yarın'],
+
+  // --- Sözlük: bitişik yazılmış kelimeler, eksik/fazla harf ---
+  ['sözlük', 'olmasada fena degil', 'Olmasa da fena değil'],
+  ['sözlük', 'gelsede gitmem', 'Gelse de gitmem'],
+  ['sözlük', 'fena degilm', 'Fena değil'],
+  ['sözlük', 'yanlisliklabitisik yazdim', 'Yanlışlıkla bitişik yazdım'],
+  ['sözlük', 'kelmeleri ayiramiyor', 'Kelimeleri ayıramıyor'],
+  ['sözlük', 'cokguzel bir gun', 'Çok güzel bir gün'],
+  ['sözlük', 'birgun gelecek', 'Bir gün gelecek'],
+  ['sözlük', 'yapaya zeka', 'Yapay zekâ'],
 
   // --- Sayı / özel ad + ek (kesme) ---
   ['kesme', 'saat 5te gel', 'Saat 5\'te gel'],
@@ -174,9 +186,19 @@ var VAKALAR = [
   ['bozmama', 'babalar gunu yaklasiyor', 'Babalar Günü yaklaşıyor'],
   ['bozmama', 'google chrome kullaniyorum', 'Google Chrome kullanıyorum'],
   ['bozmama', 'Mehmet\'in arabasi', 'Mehmet\'in arabası'],
+  ['bozmama', 'kusburnu cayi ictim', 'Kuşburnu çayı içtim'],
+  ['bozmama', 'zeytinyagi aldim', 'Zeytinyağı aldım'],
+  ['bozmama', 'kamerasiz calisiyor', 'Kamerasız çalışıyor'],
+  ['bozmama', 'olcumuyle ugrasiyorum', 'Ölçümüyle uğraşıyorum'],
+  ['bozmama', 'internetsiz kaldim', 'İnternetsiz kaldım'],
+  ['bozmama', 'masada kaldi', 'Masada kaldı'],
+  ['bozmama', 'kumandada pil yok', 'Kumandada pil yok'],
+  ['bozmama', 'surum guncellendi', 'Sürüm güncellendi'],
+  ['bozmama', 'ayarlarda bulamadim', 'Ayarlarda bulamadım'],
+  ['bozmama', 'yapay zeka kullaniyorum', 'Yapay zeka kullanıyorum'],
 ];
 
-var tam = function (s) { return T.duzelt(s, 0, s.length, 'tam'); };
+var tam = function (s) { return S.duzelt(T.duzelt(s, 0, s.length, 'tam'), harita); };
 var kat = {}, sira = [], toplam = 0, gecen = 0, kacan = [];
 VAKALAR.forEach(function (v) {
   var gelen = tam(v[1]), ok = gelen === v[2];

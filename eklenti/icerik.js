@@ -26,10 +26,16 @@
     return null;
   }
 
-  // Yeni metni hesapla. 'yz': önce ücretsiz kurallar burada, sonra noktalama arka plandaki modelde.
+  // Yeni metni hesapla: kurallar burada; 'tam' ve 'yz'de ardından arka plandaki sözlük (bitişik kelime, eksik
+  // harf), 'yz'de en son noktalama için model. Sözlük yüklenemezse kuralların sonucu kullanılır.
   async function hesapla(metin, bas, son, mod) {
     var on = Turkce.duzelt(metin, bas, son, mod === 'yz' ? 'tam' : mod);
-    if (mod !== 'yz' || !/\p{L}/u.test(on)) return on;
+    if (mod === 'karakter' || !/\p{L}/u.test(on)) return on;
+    try {
+      var s = await chrome.runtime.sendMessage({ tur: 'sozluk', metin: on });
+      if (s && typeof s.metin === 'string') on = s.metin;
+    } catch (e) { console.warn('Türkçeleştir sözlük:', e); }
+    if (mod !== 'yz') return on;
     var c = await chrome.runtime.sendMessage({ tur: 'yz', metin: on });
     if (!c || c.hata) throw new Error(c ? c.hata : 'Arka plandan cevap gelmedi');
     return c.metin;

@@ -1,0 +1,14 @@
+sozluk.txt — Türkçe kelime sıklığı listesi
+
+Kaynak: Hermit Dave, FrequencyWords — content/2018/tr/tr_full.txt
+        https://github.com/hermitdave/FrequencyWords
+Veri:   OpenSubtitles 2018 (http://opus.nlpl.eu/OpenSubtitles2018.php), P. Lison ve J. Tiedemann,
+        "OpenSubtitles2016: Extracting Large Parallel Corpora from Movie and TV Subtitles", LREC 2016.
+
+Uyarlama: yalnız harflerden oluşan ve en az 5 kez geçen kelimeler alındı; sıklıklar yaklaşık sınıflara
+(2·log2) indirildi; liste alfabetik sıralanıp önek kodlandı (tools/sozluk.py).
+
+Lisans: Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)
+        https://creativecommons.org/licenses/by-sa/4.0/
+
+Bu dosya (sozluk.txt) CC BY-SA 4.0 altındadır. Eklentinin geri kalan kodu MIT lisanslıdır (LICENSE).
