@@ -103,6 +103,13 @@ var VAKALAR = [
   ['büyük harf', 'ataturk', 'Atatürk'],
   ['büyük harf', 'whatsappta yazdim', 'WhatsApp\'ta yazdım'],
   ['büyük harf', 'mehmet abi geldi', 'Mehmet abi geldi'],
+  ['büyük harf', 'anneler gunun kutlu olsun', 'Anneler Günün kutlu olsun'],
+  ['büyük harf', 'youtubeda izledim', 'YouTube\'da izledim'],
+  ['büyük harf', 'Whatsapp grubuna yaz', 'WhatsApp grubuna yaz'],
+  ['kesme', 'aysenin dogum gunu', 'Ayşe\'nin doğum günü'],
+  ['kesme', 'ahmetde kaldim', 'Ahmet\'te kaldım'],
+  ['kesme', 'zeynebe soyledim', 'Zeynep\'e söyledim'],
+  ['kesme', 'huseyinle konustum', 'Hüseyin\'le konuştum'],
 
   // --- Kontrol: doğru metin bozulmamalı ---
   ['kontrol', 'Kitap bende kaldı.', 'Kitap bende kaldı.'],
@@ -157,6 +164,16 @@ var VAKALAR = [
   ['bozmama', 'kac yasindasin', 'Kaç yaşındasın?'],
   ['bozmama', 'odami topladim', 'Odamı topladım'],
   ['bozmama', 'neredeyse bitti', 'Neredeyse bitti'],
+  ['bozmama', 'can sikici bir gun', 'Can sıkıcı bir gün'],
+  ['bozmama', 'deniz cok guzeldi', 'Deniz çok güzeldi'],
+  ['bozmama', 'metin yazdim', 'Metin yazdım'],
+  ['bozmama', 'alim satim yapiyor', 'Alım satım yapıyor'],
+  ['bozmama', 'alinan karar', 'Alınan karar'],
+  ['bozmama', 'merve ile gittik', 'Merve ile gittik'],
+  ['bozmama', 'bayramda geliyoruz', 'Bayramda geliyoruz'],
+  ['bozmama', 'babalar gunu yaklasiyor', 'Babalar Günü yaklaşıyor'],
+  ['bozmama', 'google chrome kullaniyorum', 'Google Chrome kullanıyorum'],
+  ['bozmama', 'Mehmet\'in arabasi', 'Mehmet\'in arabası'],
 ];
 
 var tam = function (s) { return T.duzelt(s, 0, s.length, 'tam'); };

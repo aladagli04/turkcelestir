@@ -22,7 +22,7 @@ Yazı kutusunda sağ tıkla → **Türkçeleştir** → üç seçenek:
 | Seçenek | Kısayol | Ne yapar |
 |---|---|---|
 | **Sadece Türkçe karakterler** | `Alt+T` | c/g/i/o/s/u → ç/ğ/ı/ö/ş/ü. Zaten yazılmış ü, ö, ş'ye dokunmaz. |
-| **Karakter + büyük harf + noktalama** | `Alt+Y` | Ayrıca cümle başı büyük harf, boşluk/noktalama düzeni, ülke/şehir/dil adları (Almanya'da, İstanbul'a, Türkçe), bitişik soru eki (varmı → var mı?), bağlaç de/da/ki (bende geliyorum → ben de geliyorum, diyorki → diyor ki), sık bitişik/ayrı yazımlar (herşey → her şey, hiç bir → hiçbir), sık yazım hataları (herkez, yanlız, malesef), sayıya kesme (5te → 5'te), soru sözcüklü cümleye `?` (ne zaman geliyorsun?). |
+| **Karakter + büyük harf + noktalama** | `Alt+Y` | Ayrıca cümle başı büyük harf, boşluk/noktalama düzeni, ülke/şehir/dil adları (Almanya'da, İstanbul'a, Türkçe), bitişik soru eki (varmı → var mı?), bağlaç de/da/ki (bende geliyorum → ben de geliyorum, diyorki → diyor ki), sık bitişik/ayrı yazımlar (herşey → her şey, hiç bir → hiçbir), sık yazım hataları (herkez, yanlız, malesef), sayıya kesme (5te → 5'te), soru sözcüklü cümleye `?` (ne zaman geliyorsun?), sık kişi adları (mehmetin → Mehmet'in, zeynebe → Zeynep'e), marka yazılışı (whatsappta → WhatsApp'ta, iPhone'umu), bayram ve özel günler (Ramazan Bayramı, Anneler Günü). |
 | **Yapay zekâ ile tam düzelt** | `Alt+U` | Ayrıca virgül, cümle bölme ve küçük yazım hataları (bkz. aşağıda). |
 
 - Metin **seçmezsen kutunun tamamı**, seçersen yalnız seçtiğin kısım düzelir.
@@ -98,7 +98,7 @@ Kaynak kodun tamamı bu depoda; istediğin gibi inceleyebilirsin.
   yalnız "mi" ortadaysa eklenmez ("mantıklı mı sizce" → eklenmez).
 - "bende/sende/onlarda" yalnız fiilin kişisi uyuyorsa ayrılır ("ben de geliyorum" ama "kitap bende kaldı");
   emir kipinde çoğu zaman karar veremez ("onlarda gelsin" olduğu gibi kalır).
-- Kişi adlarının eklerine kesme konmaz ("mehmetin"): ad mı, kelime mi bilemez.
+- Kişi adları yalnız sık ve başka anlamı olmayanlarda tanınır (Mehmet, Ayşe evet; Can, Deniz, Umut hayır).
 - Zengin editörlerde (Gmail, Reddit) geri almak birkaç `Ctrl+Z` gerektirebilir.
 - GMX gibi çerçeveli editörlerde önce yukarıdaki isteğe bağlı izni vermek gerekir.
 - Chrome'un kendi sayfalarında (`chrome://`) ve Web Mağazası'nda eklentiler çalışamaz.

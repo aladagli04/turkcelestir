@@ -104,9 +104,63 @@
   var KESMESIZ_EK = new Set(['lı', 'li', 'lu', 'lü', 'lılar', 'liler', 'lular', 'lüler']);
 
   // Özel isimse yeni yazılışını döndürür (büyük harf + gerekirse kesme), değilse null.
+  // Markalar kendi yazılışıyla; ek kesmeyle ayrılır (whatsappta -> WhatsApp'ta).
+  var MARKA = {};
+  ('WhatsApp YouTube Instagram Facebook Google Twitter TikTok Netflix Amazon eBay iPhone iPad Samsung Apple ' +
+    'Android Windows Telegram Gmail Chrome Firefox Spotify LinkedIn PayPal Skype Microsoft Huawei Xiaomi ' +
+    'Mercedes BMW Volkswagen Toyota IKEA Lidl Trendyol Hepsiburada Getir Yemeksepeti').split(' ')
+    .forEach(function (m) { MARKA[sade(m)] = m; });
+  // Sık kişi adları (sözlükte başka anlamı olanlar alınmadı: can, deniz, umut, barış, metin, onur, gül...).
+  var KISI = {};
+  ('Ahmet Mehmet Mustafa Hüseyin Hasan İbrahim İsmail Osman Yusuf Murat Ömer Halil Süleyman Abdullah Mahmut ' +
+    'Recep Ali Fatma Ayşe Emine Hatice Zeynep Elif Meryem Şerife Zehra Hanife Merve Büşra Esra Özge Gamze Tuğba ' +
+    'Kübra Rabia Seda Aylin Selin Ebru Ceren Ezgi İrem Melike Buse Hakan Serkan Volkan Burak Emre Erkan Gökhan ' +
+    'Orhan Kenan Kaan Tolga Oğuz Arda Kerem Furkan Enes Yunus Yasin Batuhan Berkay Cihan Fatih Selim Levent ' +
+    'Serdar Sinan Tarık Taner Hüsnü Nihat Necati Cemal Kemal Celal Bilal Adem İlyas İdris İlhan Ercan Ertan ' +
+    'Erdal Erol Ferhat Fikret Haluk Hamza Harun Kadir Kazım Lütfi Mert Nuri Okan Özcan Samet Selçuk Sercan ' +
+    'Şükrü Taylan Tunahan Turgut Vedat Yakup Ayten Aysel Aynur Birsen Canan Dilara Esma Feride Gülay Gülsüm ' +
+    'Hacer Havva İlknur Kevser Leyla Melis Nermin Nesrin Nilay Nihan Nurcan Sibel Şule Şeyma Tülay Türkan ' +
+    'Ümran Yeliz Yeşim Zübeyde Sevim Songül Gülşen Nazan Neslihan Beyza Sude Azra Ecrin Nisa Miray Kübra ' +
+    'Emine Muhammet Muhammed Abdurrahman Tuncay Özgür Erhan Hilmi Fuat Nevzat Rukiye Saliha Sevgül Hülya')
+    .split(' ').forEach(function (a) { KISI[sade(a)] = a; });
+  var ARKA = /[aıou]/;
+  // Ad + ek: "mehmetin" -> "Mehmet'in", "aliye" -> "Ali'ye". Ek, adın ünlü uyumuyla yeniden yazılır.
+  function kisi(k) {
+    var sk = sade(k);
+    if (KISI[sk]) return KISI[sk];
+    for (var i = 0; i < ISIM_EKLERI.length; i++) {
+      var ek = sade(ISIM_EKLERI[i]), govde = sk.slice(0, -ek.length), ad = KISI[govde];
+      // Yumuşamış ünsüz: zeynebe -> Zeynep'e, muradı -> Murat'ı
+      if (!ad && /^[aeiu]/.test(ek)) ad = KISI[govde.slice(0, -1) + ({ b: 'p', d: 't', c: 'c', g: 'k' })[govde.slice(-1)]];
+      if (!ad || sk.length <= ek.length || sk.slice(-ek.length) !== ek || KESMESIZ_EK.has(ISIM_EKLERI[i])) continue;
+      var unluler = kucult(ad).match(/[aıeioöuü]/g), son = unluler[unluler.length - 1], arka = ARKA.test(son);
+      if (ek.indexOf(arka ? 'e' : 'a') >= 0) continue;                    // Ahmet'a olmaz
+      // Ünlüyle biten ada kaynaştırmalı (Ali'ye, Ali'nin), ünsüzle bitene kaynaştırmasız ek (Ahmet'e, Ahmet'in).
+      var unluyleBiter = /[aıeioöuü]$/.test(kucult(ad));
+      if (unluyleBiter ? /^[aeiu]/.test(ek) : /^(y|n[iu]n$)/.test(ek)) continue;
+      var yeni = ek.replace(/[iu]/g, UYUM[son]).replace(/[ae]/g, arka ? 'a' : 'e');
+      if (/^[dt]/.test(yeni)) yeni = (/[çfhkpsşt]$/.test(kucult(ad)) ? 't' : 'd') + yeni.slice(1); // Ahmet'te
+      return ad + '\'' + yeni;
+    }
+    return null;
+  }
+  // Marka + ek: hal ekleri ve iyelik (iPhone'umu, Windows'u); ek kullanıcının yazdığı gibi kalır.
+  var MARKA_EKI = /^(?:[iu]?m(?:[iu]z)?|[iu]?n(?:[iu]z)?|s[iu])(?:[iu]|n[iu]n|[dt][ae]n?|y?[ae]|l[ae])?$/;
+  function marka(k) {
+    var kk = sade(k);
+    if (MARKA[kk]) return MARKA[kk];
+    for (var n = Math.min(5, kk.length - 2); n >= 1; n--) {
+      var m = MARKA[kk.slice(0, -n)], ek = kk.slice(-n);
+      if (m && (SAYI_EKI.test(ek) || MARKA_EKI.test(ek)) && !/^l[iu]/.test(ek)) return m + '\'' + k.slice(-n);
+    }
+    return null;
+  }
+
   function ozelIsim(kelime) {
     var k = kucult(kelime);
     var ilk = function (s) { return buyut(s.charAt(0)) + s.slice(1); };
+    var mk = marka(k) || kisi(k);
+    if (mk) return mk;
     if (ISIM_SET.has(k)) return ilk(k);
     for (var kok in KOK_GUVENLI) {
       if (k.indexOf(kok) === 0 && KOK_GUVENLI[kok].indexOf(k.slice(kok.length)) >= 0) return ilk(k);
@@ -351,9 +405,15 @@
 
     // Özel isimler (yalnız tamamen küçük yazılmışsa).
     s = s.replace(new RegExp(L + '+', 'gu'), function (k) {
-      if (k !== kucult(k)) return k;
+      if (k !== kucult(k)) return (k.slice(1) === kucult(k.slice(1)) && marka(kucult(k))) || k; // Whatsapp
       return ozelIsim(k) || k;
     });
+    // Bayram ve özel günler: Ramazan Bayramı, Anneler Günü.
+    s = s.replace(/(^|[^\p{L}])(ramazan|kurban|şeker|anneler|babalar|sevgililer|öğretmenler)([ \t]+)(bayram|gün)(\p{L}*)/giu,
+      function (t, on, a, b, c, ek) {
+        if (c.toLocaleLowerCase('tr') === 'gün' && !/^[üu]/.test(ek)) return t;  // "anneler gününe" ama "babalar gün..." değil
+        return on + buyut(a.charAt(0)) + a.slice(1) + b + buyut(c.charAt(0)) + c.slice(1) + ek;
+      });
 
     // Cümle başı büyük harf.
     var bas = onceCumleBasiMi(onceki), cikti = '';
